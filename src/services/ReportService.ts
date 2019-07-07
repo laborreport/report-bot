@@ -17,9 +17,11 @@ export class ReportService {
             if (response.status !== 200) throw new Error(response.statusText);
             return {
                 buffer: response.data,
-                filename: response.headers['content-disposition'].split(
-                    `filename*=`
-                )[1],
+                filename: decodeURI(
+                    response.headers['content-disposition'].split(
+                        `filename=`
+                    )[1]
+                ),
             };
         } catch (err) {
             throw err;
