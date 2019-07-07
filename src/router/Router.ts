@@ -1,9 +1,9 @@
-import Telegraf, { ContextMessageUpdate, Extra } from 'telegraf';
+import Telegraf, { ContextMessageUpdate } from 'telegraf';
 import {
     DocumentActionsKeyboard,
     IDocumentActionsButton as IDocumentActionsButtonData,
 } from '../keyboards/DocumentActionsKeyboard';
-import { ReportActions } from '../actions/reportActions';
+import { ReportActions } from '../actions/ReportActions';
 import { DocumentProcessingType } from '../constants/Constants';
 import { Dict } from '../i18n';
 

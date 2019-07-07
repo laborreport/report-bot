@@ -6,8 +6,7 @@
     "scripts": {
         "start": "webpack --progress --env.development --watch",
         "build": "webpack --progress --env.production",
-        "pm2": "pm2 start ./dist/bundle.js --watch=true",
-        "postinstall": "npm run build",
+        "pm2": "pm2 start ./bundle.js",
         "test": "jest --forceExit",
         "test-ci": "npm test && cat ./coverage/lcov.info | coveralls"
     },
