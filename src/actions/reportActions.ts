@@ -3,11 +3,12 @@ import { ReportService } from '../services/ReportService';
 import { ContextMessageUpdate } from 'telegraf';
 
 export class ReportActions {
-    static async sendProcessedDocumentReport(ctx: ContextMessageUpdate) {
+    static async sendProcessedDocumentReport(
+        ctx: ContextMessageUpdate,
+        documentFileId: string
+    ) {
         try {
-            const fileUrl = await ctx.telegram.getFileLink(
-                ctx.message.document.file_id
-            );
+            const fileUrl = await ctx.telegram.getFileLink(documentFileId);
 
             const bufferFile = await TelegramFileService.getFile(fileUrl);
 
