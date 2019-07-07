@@ -1,11 +1,11 @@
 FROM node:10
 WORKDIR /usr/app
-COPY ./src/ /usr/app/src/
+COPY ./src/ ./src/
 COPY package*.json ./
 RUN npm install
-COPY ./webpack.config.js /usr/app
-COPY ./tsconfig.json /usr/app
-COPY ./.babelrc /usr/app
-
+COPY ./webpack.config.js ./
+COPY ./tsconfig.json ./
+COPY ./.babelrc ./
+COPY ./.env ./
 RUN npm run build
 CMD ["npm", "run", "pm2"]

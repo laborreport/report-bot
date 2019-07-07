@@ -32,11 +32,17 @@ module.exports = (env = {}) => {
             ],
         },
         devtool: env.development ? 'source-map' : false,
-        plugins: [
-            new NodemonPlugin({
-                nodeArgs: ['--inspect=49590', '--harmony', '--no-deprecation'],
-            }),
-        ],
+        plugins: env.development
+            ? [
+                  new NodemonPlugin({
+                      nodeArgs: [
+                          '--inspect=49590',
+                          '--harmony',
+                          '--no-deprecation',
+                      ],
+                  }),
+              ]
+            : undefined,
     };
     return config;
 };
