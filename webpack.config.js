@@ -34,11 +34,7 @@ module.exports = (env = {}) => {
         devtool: env.development ? 'source-map' : false,
         plugins: [
             new NodemonPlugin({
-                nodeArgs: [
-                    '--inspect-brk=49590',
-                    '--harmony',
-                    '--no-deprecation',
-                ],
+                nodeArgs: ['--inspect=49590', '--harmony', '--no-deprecation'],
             }),
         ],
     };
