@@ -4,8 +4,8 @@
     "description": "report bot",
     "main": "index.js",
     "scripts": {
-        "start": "webpack --progress --watch --debug",
-        "build": "webpack --progress",
+        "start": "webpack --progress --env.development --watch",
+        "build": "webpack --progress --env.production",
         "pm2": "pm2 start ./dist/bundle.js --watch=true",
         "postinstall": "npm run build",
         "test": "jest --forceExit",
@@ -25,6 +25,7 @@
         "@types/koa": "^2.0.48",
         "axios": "^0.19.0",
         "dotenv": "^8.0.0",
+        "form-data": "^2.5.0",
         "proxy-agent": "^3.1.0",
         "telegraf": "^3.30.1"
     },
@@ -34,6 +35,7 @@
         "@babel/preset-typescript": "^7.3.3",
         "@types/axios": "^0.14.0",
         "@types/dotenv": "^6.1.1",
+        "@types/node": "^12.0.12",
         "babel-core": "^6.26.3",
         "babel-loader": "^8.0.6",
         "babel-polyfill": "^6.26.0",
