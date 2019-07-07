@@ -14,14 +14,15 @@ export class ReportService {
                     headers: formData.getHeaders(),
                 }
             );
+            if (response.status !== 200) throw new Error(response.statusText);
             return {
                 buffer: response.data,
                 filename: response.headers['content-disposition'].split(
-                    `filename=`
+                    `filename*=`
                 )[1],
             };
         } catch (err) {
-            throw new Error(err);
+            throw err;
         }
     }
 }
