@@ -1,6 +1,7 @@
 import { TelegramFileService } from '../services/TelegramFileService';
 import { ReportService } from '../services/ReportService';
 import { ContextMessageUpdate } from 'telegraf';
+import { Dict } from '../i18n';
 
 export class ReportActions {
     static async sendProcessedDocumentReport(
@@ -21,7 +22,7 @@ export class ReportActions {
             });
         } catch (err) {
             return ctx.reply(
-                `I caught an error processing a document 😔 \n ${err.toString()}`
+                ` ${Dict.errors.reportService}\n ${err.toString()}`
             );
         }
     }

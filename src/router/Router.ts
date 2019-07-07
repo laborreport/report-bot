@@ -5,12 +5,13 @@ import {
 } from '../keyboards/DocumentActionsKeyboard';
 import { ReportActions } from '../actions/reportActions';
 import { DocumentProcessingType } from '../constants/Constants';
+import { Dict } from '../i18n';
 
 export function Router(bot: Telegraf<ContextMessageUpdate>) {
-    bot.start(ctx => ctx.reply('Welcome! send me a jira worksheet file.'));
+    bot.start(ctx => ctx.reply(Dict.welcome));
 
     bot.on('document', async ctx => {
-        return ctx.reply('how to process a document?', {
+        return ctx.reply(Dict.documentPrompt, {
             reply_markup: DocumentActionsKeyboard,
             reply_to_message_id: ctx.message.message_id,
         });
@@ -29,12 +30,10 @@ export function Router(bot: Telegraf<ContextMessageUpdate>) {
                         documentFileId
                     );
                 default:
-                    return ctx.reply('Could not resolve this button. Sorry 😔');
+                    return ctx.reply(Dict.errors.callbackActionNotFound);
             }
         } catch (err) {
-            return ctx.reply(
-                'Could not resolve this button. Sorry 😔. Data is broken'
-            );
+            return ctx.reply(Dict.errors.callbackDataCorrupted);
         }
     });
 }
