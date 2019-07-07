@@ -11,7 +11,7 @@ export function Router(bot: Telegraf<ContextMessageUpdate>) {
 
     bot.on('document', async ctx => {
         return ctx.reply('how to process a document?', {
-            reply_markup: DocumentActionsKeyboard(ctx.message.document.file_id),
+            reply_markup: DocumentActionsKeyboard,
             reply_to_message_id: ctx.message.message_id,
         });
     });

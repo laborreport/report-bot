@@ -1,9 +1,9 @@
 import { DocumentProcessingType } from '../constants/Constants';
 export interface IDocumentActionsButton {
-    documentFileId: string;
     action: DocumentProcessingType;
 }
-export const DocumentActionsKeyboard = (documentFileId: string) => ({
+
+export const DocumentActionsKeyboard = {
     inline_keyboard: [
         [
             {
@@ -14,4 +14,4 @@ export const DocumentActionsKeyboard = (documentFileId: string) => ({
             },
         ],
     ],
-});
+};
