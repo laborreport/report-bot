@@ -2,7 +2,7 @@ import { AxiosProxy } from '../utils/AxiosProxy';
 import { AxiosResponse } from 'axios';
 
 export class TelegramFileService {
-    static async getFile(fileLink: string) {
+    static async downloadFile(fileLink: string) {
         try {
             const response: AxiosResponse<ArrayBuffer> = await AxiosProxy.get(
                 fileLink,

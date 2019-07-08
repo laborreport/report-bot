@@ -5,13 +5,13 @@ import {
 } from '../keyboards/DocumentActionsKeyboard';
 import { ReportActions } from '../actions/ReportActions';
 import { DocumentProcessingType } from '../constants/Constants';
-import { Dict } from '../i18n';
+import { i18n } from '../i18n';
 
 export function Router(bot: Telegraf<ContextMessageUpdate>) {
-    bot.start(ctx => ctx.reply(Dict.welcome));
+    bot.start(ctx => ctx.reply(i18n.welcome));
 
     bot.on('document', async ctx => {
-        return ctx.reply(Dict.documentPrompt, {
+        return ctx.reply(i18n.documentPrompt, {
             reply_markup: DocumentActionsKeyboard,
             reply_to_message_id: ctx.message.message_id,
         });
@@ -30,10 +30,10 @@ export function Router(bot: Telegraf<ContextMessageUpdate>) {
                         documentFileId
                     );
                 default:
-                    return ctx.reply(Dict.errors.callbackActionNotFound);
+                    return ctx.reply(i18n.errors.callbackActionNotFound);
             }
         } catch (err) {
-            return ctx.reply(Dict.errors.callbackDataCorrupted);
+            return ctx.reply(i18n.errors.callbackDataCorrupted);
         }
     });
 }

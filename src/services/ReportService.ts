@@ -2,9 +2,9 @@ import { AxiosRegular } from '../utils/AxiosProxy';
 import { AxiosResponse } from 'axios';
 import FormData from 'form-data';
 export class ReportService {
-    static async getReport(file: ArrayBuffer) {
+    static async getReportByWorksheet(worksheet: ArrayBuffer) {
         const formData = new FormData();
-        formData.append('file', file, { filename: 'report.xlsx' });
+        formData.append('file', worksheet, { filename: 'report.xlsx' });
         try {
             const response: AxiosResponse<Buffer> = await AxiosRegular.post(
                 `${process.env.REPORT_REST_SERVICE}/labor-report`,

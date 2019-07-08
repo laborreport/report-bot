@@ -1,7 +1,7 @@
 import { TelegramFileService } from '../services/TelegramFileService';
 import { ReportService } from '../services/ReportService';
 import { ContextMessageUpdate } from 'telegraf';
-import { Dict } from '../i18n';
+import { i18n } from '../i18n';
 
 export class ReportActions {
     static async sendProcessedDocumentReport(
@@ -9,20 +9,25 @@ export class ReportActions {
         documentFileId: string
     ) {
         try {
-            const fileUrl = await ctx.telegram.getFileLink(documentFileId);
-
-            const bufferFile = await TelegramFileService.getFile(fileUrl);
-
-            const { buffer, filename } = await ReportService.getReport(
-                bufferFile
+            const fileUrl: string = await ctx.telegram.getFileLink(
+                documentFileId
             );
+
+            const worksheetFile: ArrayBuffer = await TelegramFileService.downloadFile(
+                fileUrl
+            );
+
+            const {
+                buffer: source,
+                filename,
+            } = await ReportService.getReportByWorksheet(worksheetFile);
             return ctx.telegram.sendDocument(ctx.from.id, {
-                source: buffer,
+                source,
                 filename,
             });
         } catch (err) {
             return ctx.reply(
-                ` ${Dict.errors.reportService}\n ${err.toString()}`
+                ` ${i18n.errors.reportService}\n ${err.toString()}`
             );
         }
     }

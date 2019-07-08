@@ -1,6 +1,6 @@
 import { DocumentProcessingType } from './constants/Constants';
 
-export const Dict = {
+export const i18n = {
     welcome:
         'Привет! Пришли мне выгрузку из Jira, я создам тебе отчет трудозатрат.',
     documentPrompt: 'Что сделать с файлом?',
