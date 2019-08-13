@@ -1,14 +1,28 @@
-import Telegraf, { ContextMessageUpdate } from 'telegraf';
+import Telegraf from 'telegraf';
 import {
     DocumentActionsKeyboard,
     IDocumentActionsButton as IDocumentActionsButtonData,
 } from '../keyboards/DocumentActionsKeyboard';
 import { ReportActions } from '../actions/ReportActions';
-import { DocumentProcessingType } from '../constants/Constants';
 import { i18n } from '../i18n';
+import { TBotContext } from '../Setup/SetupTypes';
+import { DocumentProcessingType } from '../common/CommonConstants';
 
-export function Router(bot: Telegraf<ContextMessageUpdate>) {
+export function Router(bot: Telegraf<TBotContext>) {
     bot.start(ctx => ctx.reply(i18n.welcome));
+
+    bot.hears('session write', ctx => {
+        ctx.session = { some: 'shit' };
+        ctx.reply('written');
+    });
+    bot.hears('session read', ctx => {
+        ctx.reply(JSON.stringify(ctx.session));
+    });
+    bot.hears('session clear', ctx => {
+        ctx.session = {};
+
+        ctx.reply('ok');
+    });
 
     bot.on('document', async ctx => {
         return ctx.reply(i18n.documentPrompt, {
