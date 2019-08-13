@@ -1,5 +1,5 @@
-import { DocumentProcessingType } from '../constants/Constants';
 import { i18n } from '../i18n';
+import { DocumentProcessingType } from '../common/CommonConstants';
 export interface IDocumentActionsButton {
     action: DocumentProcessingType;
 }

@@ -7,23 +7,12 @@ import { ReportActions } from '../actions/ReportActions';
 import { i18n } from '../i18n';
 import { TBotContext } from '../Setup/SetupTypes';
 import { DocumentProcessingType } from '../common/CommonConstants';
+import { CredentialsScene } from '../Scenes/Credentials/Credentials';
 
 export function Router(bot: Telegraf<TBotContext>) {
     bot.start(ctx => ctx.reply(i18n.welcome));
 
-    bot.hears('session write', ctx => {
-        ctx.session = { some: 'shit' };
-        ctx.reply('written');
-    });
-    bot.hears('session read', ctx => {
-        ctx.reply(JSON.stringify(ctx.session));
-    });
-    bot.hears('session clear', ctx => {
-        ctx.session = {};
-
-        ctx.reply('ok');
-    });
-
+    bot.command('/credentials', ctx => CredentialsScene.enter(ctx));
     bot.on('document', async ctx => {
         return ctx.reply(i18n.documentPrompt, {
             reply_markup: DocumentActionsKeyboard,

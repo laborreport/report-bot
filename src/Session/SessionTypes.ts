@@ -4,11 +4,16 @@ export interface ISessionOptions {
     logging: boolean;
 }
 
+interface IUserSession {
+    scenes: {
+        activeSceneId: string;
+        sceneActionIndex: number;
+    };
+}
 export interface IStorageShape {
-    // TODO: fix
-    [chatId: string]: {};
+    [chatId: string]: IUserSession;
 }
 
 export interface ISessionContext extends ContextMessageUpdate {
-    session: { [x: string]: string };
+    session: IUserSession;
 }

@@ -20,7 +20,9 @@ export class Session {
 
     getOrCreateUserSession(ctx: ISessionContext) {
         // console.log(this.storage.getState());
-        const userSession = this.storage.getState()[this.getKey(ctx)];
+        const userSession = this.storage.getState()[this.getKey(ctx)] || {
+            scenes: { sceneActionIndex: null, activeSceneId: null },
+        };
         this.options.logging &&
             console.log('session get or create', this.getKey(ctx), userSession);
         return userSession;

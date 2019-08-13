@@ -1,4 +1,4 @@
-import { DocumentProcessingType } from './constants/Constants';
+import { DocumentProcessingType } from './common/CommonConstants';
 
 export const i18n = {
     welcome:
