@@ -1,22 +1,31 @@
-import Telegraf from 'telegraf';
+import Telegraf, { Middleware } from 'telegraf';
 import { proxyAgent } from '../utils/ProxyAgent';
 import { Router } from '../router/Router';
 import { Session } from '../Session/Session';
-import { ISessionContext } from '../Session/SessionTypes';
 import { SceneManager } from '../Scene/SceneManager';
-import { CredentialsScene } from '../Scenes/Credentials/Credentials';
+import { TBotContext } from './SetupTypes';
+import { Scene } from '../Scene/Scene';
 
 export function Setup() {
-    const bot = new Telegraf<ISessionContext>(process.env.BOT_TOKEN, {
+    const bot = new Telegraf<TBotContext>(process.env.BOT_TOKEN, {
         telegram: { agent: proxyAgent },
     });
 
     const session = new Session({ logging: true });
+
+    const example = new Scene('name');
+    example.enter(ctx => ctx.reply('entered'));
+    example.leave(ctx => ctx.reply('exited'));
+
+    example.composer.command('cancel', ctx => ctx.scene.leave());
+    example.composer.command('/inside', ctx => ctx.reply('inside a scene'));
+
+    const sceneManager = new SceneManager([example]);
     bot.use(session.middleware());
-
-    const sceneManager = new SceneManager([CredentialsScene]);
-
     bot.use(sceneManager.middleware());
+
+    bot.command('enter', ctx => ctx.scene.enter('name'));
+    bot.command('isoutside', ctx => ctx.reply('ok'));
     Router(bot);
 
     bot.launch();
