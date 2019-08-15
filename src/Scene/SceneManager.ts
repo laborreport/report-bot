@@ -8,7 +8,7 @@ export interface ISceneManagerHooks {
 }
 
 export class SceneManager {
-    private scenes: Map<string, Scene> = new Map();
+    protected scenes: Map<string, Scene> = new Map();
     constructor(scenes: Scene[] = []) {
         this.scenes = new Map(scenes.map(scene => [scene.id, scene]));
     }
@@ -20,9 +20,6 @@ export class SceneManager {
     }: TBotContext) {
         return activeSceneId;
     }
-    private getActiveScene(ctx: TBotContext) {
-        return this.scenes.get(this.getActiveSceneId(ctx));
-    }
     private checkWhetherSceneIsInProgress({
         session: { scenes: { activeSceneId } } = {
             scenes: { activeSceneId: null },
@@ -31,7 +28,7 @@ export class SceneManager {
         return this.scenes.has(activeSceneId);
     }
 
-    private startScene(ctx: TBotContext) {
+    private enter(ctx: TBotContext) {
         return (sceneId: string) => {
             ctx.session.scenes.activeSceneId = sceneId;
             const {
@@ -40,7 +37,7 @@ export class SceneManager {
             enter(ctx);
         };
     }
-    private leaveCurrentScene(ctx: TBotContext) {
+    private leave(ctx: TBotContext) {
         const id = this.getActiveSceneId(ctx);
         ctx.session.scenes.activeSceneId = null;
         const {
@@ -50,10 +47,8 @@ export class SceneManager {
     }
 
     private sceneHooks = (ctx: TBotContext): ISceneManagerHooks => ({
-        enter: this.startScene(ctx),
-        leave: () => {
-            this.leaveCurrentScene(ctx);
-        },
+        enter: this.enter(ctx),
+        leave: () => this.leave(ctx),
     });
 
     private checkSceneInProgressMiddleware = (ctx: TBotContext) => {
@@ -66,6 +61,7 @@ export class SceneManager {
     ) => {
         const { leave } = this.sceneHooks(ctx);
         ctx.scene = {
+            ...ctx.scene,
             leave,
         };
         next(ctx);
@@ -76,6 +72,7 @@ export class SceneManager {
     ) => {
         const { enter } = this.sceneHooks(ctx);
         ctx.scene = {
+            ...ctx.scene,
             enter,
         };
         next(ctx);
@@ -86,6 +83,7 @@ export class SceneManager {
             this.checkSceneInProgressMiddleware,
             Composer.compose([
                 this.injectLeaveHookMiddleware,
+                this.injectEnterHookMiddleware,
                 ...Array.from(this.scenes).map(([key, scene]) => {
                     return Composer.optional(
                         ctx => this.getActiveSceneId(ctx) === key,

@@ -3,8 +3,11 @@ export interface ISessionOptions {
 }
 
 export interface IUserSession {
-    scenes: {
+    scenes?: {
         activeSceneId: string;
+    };
+    wizard?: {
+        activeIndex: number;
     };
 }
 export interface IStorageShape {

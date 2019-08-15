@@ -5,6 +5,7 @@ import { Session } from '../Session/Session';
 import { SceneManager } from '../Scene/SceneManager';
 import { TBotContext } from '../common/CommonTypes';
 import { exampleScene } from '../Scenes/Example/Example';
+import { credentialsScene } from '../Scenes/Credentials/Credentials';
 
 export function Setup() {
     const bot = new Telegraf<TBotContext>(process.env.BOT_TOKEN, {
@@ -13,7 +14,7 @@ export function Setup() {
 
     const session = new Session({ logging: true });
 
-    const sceneManager = new SceneManager([exampleScene]);
+    const sceneManager = new SceneManager([exampleScene, credentialsScene]);
     bot.use(session.middleware());
     bot.use(sceneManager.middleware());
 
