@@ -4,6 +4,7 @@
         "target": "esnext",
         "lib": ["esnext"],
         "noImplicitAny": true,
+        "noUnusedLocals": true,
         "removeComments": true,
         "moduleResolution": "node",
         "preserveConstEnums": true,

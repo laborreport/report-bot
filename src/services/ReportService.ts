@@ -1,4 +1,4 @@
-import { AxiosRegular } from '../utils/AxiosProxy';
+import { AxiosRegular } from '../Agents/AxiosProxy';
 import { AxiosResponse } from 'axios';
 import FormData from 'form-data';
 export class ReportService {

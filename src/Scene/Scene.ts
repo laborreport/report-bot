@@ -1,17 +1,15 @@
-import { TBotContext } from '../Setup/SetupTypes';
 import { Composer, Middleware } from 'telegraf';
+import { TBotContext } from '../common/CommonTypes';
+
+interface ISceneHooks {
+    enter?: Middleware<TBotContext>;
+    leave?: Middleware<TBotContext>;
+}
 
 export class Scene {
     public composer: Composer<TBotContext>;
     public id: string;
-    public registeredHooks: {
-        enter: Middleware<TBotContext>;
-        leave: Middleware<TBotContext>;
-    } = {
-        // TODO:remove
-        enter: ctx => ctx.reply('empty enter'),
-        leave: ctx => ctx.reply('empty leave'),
-    };
+    public registeredHooks: ISceneHooks = {};
 
     constructor(id: string) {
         this.composer = new Composer();
@@ -25,7 +23,8 @@ export class Scene {
         this.registeredHooks.leave = handler;
     }
 
-    middleware(): Middleware<TBotContext> {
+    public middleware(): Middleware<TBotContext> {
+        // TODO: fix when proper typing will be provided by telegraf
         return ((this.composer as unknown) as any).middleware();
     }
 }

@@ -5,14 +5,15 @@ import {
 } from '../keyboards/DocumentActionsKeyboard';
 import { ReportActions } from '../actions/ReportActions';
 import { i18n } from '../i18n';
-import { TBotContext } from '../Setup/SetupTypes';
 import { DocumentProcessingType } from '../common/CommonConstants';
-import { CredentialsScene } from '../Scenes/Credentials/Credentials';
+import { TBotContext } from '../common/CommonTypes';
+import { exampleSceneName } from '../Scenes/Example/Example';
 
 export function Router(bot: Telegraf<TBotContext>) {
     bot.start(ctx => ctx.reply(i18n.welcome));
 
-    bot.command('/credentials', ctx => CredentialsScene.enter(ctx));
+    bot.command('/example', ctx => ctx.scene.enter(exampleSceneName));
+
     bot.on('document', async ctx => {
         return ctx.reply(i18n.documentPrompt, {
             reply_markup: DocumentActionsKeyboard,

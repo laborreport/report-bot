@@ -1,6 +1,6 @@
-import { TBotContext } from '../Setup/SetupTypes';
 import { Scene } from './Scene';
 import { Middleware, Composer } from 'telegraf';
+import { TBotContext } from '../common/CommonTypes';
 
 export interface ISceneManagerHooks {
     enter?: (sceneId: string) => void;
@@ -8,54 +8,59 @@ export interface ISceneManagerHooks {
 }
 
 export class SceneManager {
-    scenes: Map<string, Scene> = new Map();
+    private scenes: Map<string, Scene> = new Map();
     constructor(scenes: Scene[] = []) {
         this.scenes = new Map(scenes.map(scene => [scene.id, scene]));
     }
 
-    getActiveSceneId({
+    private getActiveSceneId({
         session: { scenes: { activeSceneId } } = {
             scenes: { activeSceneId: null },
         },
     }: TBotContext) {
         return activeSceneId;
     }
-    getActiveScene(ctx: TBotContext) {
+    private getActiveScene(ctx: TBotContext) {
         return this.scenes.get(this.getActiveSceneId(ctx));
     }
-    checkWhetherSceneIsInProgress({
+    private checkWhetherSceneIsInProgress({
         session: { scenes: { activeSceneId } } = {
             scenes: { activeSceneId: null },
         },
     }: TBotContext) {
-        console.log('SCENE_CHECK', activeSceneId);
         return this.scenes.has(activeSceneId);
     }
 
-    startScene(ctx: TBotContext) {
+    private startScene(ctx: TBotContext) {
         return (sceneId: string) => {
             ctx.session.scenes.activeSceneId = sceneId;
-            this.scenes.get(sceneId).registeredHooks.enter(ctx);
+            const {
+                registeredHooks: { enter = () => {} },
+            } = this.scenes.get(sceneId) || { registeredHooks: {} };
+            enter(ctx);
         };
     }
-    leaveCurrentScene(ctx: TBotContext) {
+    private leaveCurrentScene(ctx: TBotContext) {
         const id = this.getActiveSceneId(ctx);
         ctx.session.scenes.activeSceneId = null;
-        this.scenes.get(id).registeredHooks.leave(ctx);
+        const {
+            registeredHooks: { leave = () => {} },
+        } = this.scenes.get(id) || { registeredHooks: {} };
+        leave(ctx);
     }
 
-    sceneHooks = (ctx: TBotContext): ISceneManagerHooks => ({
+    private sceneHooks = (ctx: TBotContext): ISceneManagerHooks => ({
         enter: this.startScene(ctx),
         leave: () => {
             this.leaveCurrentScene(ctx);
         },
     });
 
-    private sceneInProgressMiddleware = (ctx: TBotContext) => {
+    private checkSceneInProgressMiddleware = (ctx: TBotContext) => {
         return this.checkWhetherSceneIsInProgress(ctx);
     };
 
-    sceneLeaveMixinMiddleware = (
+    private injectLeaveHookMiddleware = (
         ctx: TBotContext,
         next: Middleware<TBotContext>
     ) => {
@@ -65,7 +70,7 @@ export class SceneManager {
         };
         next(ctx);
     };
-    sceneEnterMixinMiddleware = (
+    private injectEnterHookMiddleware = (
         ctx: TBotContext,
         next: Middleware<TBotContext>
     ) => {
@@ -76,11 +81,11 @@ export class SceneManager {
         next(ctx);
     };
 
-    middleware() {
+    public middleware() {
         return Composer.branch(
-            this.sceneInProgressMiddleware,
+            this.checkSceneInProgressMiddleware,
             Composer.compose([
-                this.sceneLeaveMixinMiddleware,
+                this.injectLeaveHookMiddleware,
                 ...Array.from(this.scenes).map(([key, scene]) => {
                     return Composer.optional(
                         ctx => this.getActiveSceneId(ctx) === key,
@@ -88,7 +93,7 @@ export class SceneManager {
                     );
                 }),
             ]),
-            this.sceneEnterMixinMiddleware
+            this.injectEnterHookMiddleware
         );
     }
 }

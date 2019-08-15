@@ -1,5 +1,3 @@
-import { ContextMessageUpdate } from 'telegraf';
-
 export interface ISessionOptions {
     logging: boolean;
 }
