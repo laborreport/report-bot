@@ -8,11 +8,7 @@ export interface IUserSession {
     scenes?: {
         activeSceneId: string;
     };
-    wizard?: {
-        activeIndex: number;
-    };
-
-    userModel: Partial<IUserModel>;
+    userModel?: Partial<IUserModel>;
 }
 export interface IStorageShape {
     [chatId: string]: IUserSession;

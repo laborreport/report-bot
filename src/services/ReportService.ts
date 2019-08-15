@@ -5,7 +5,7 @@ import { IUserModel } from '../common/CommonTypes';
 import { EDocFormat } from '../common/CommonConstants';
 
 interface ISendReportBody {
-    user: IUserModel;
+    user: Partial<IUserModel>;
     act_number: number;
 }
 interface ISendReportOptions<T> {
@@ -53,7 +53,7 @@ export class ReportService {
     static async getActByWorksheet(
         worksheet: ArrayBuffer,
         docFormat: EDocFormat = EDocFormat.PDF,
-        user: IUserModel,
+        user: Partial<IUserModel>,
         act_number: number
     ) {
         return sendReport({

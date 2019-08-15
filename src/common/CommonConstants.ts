@@ -1,6 +1,6 @@
 export enum DocumentProcessingType {
     WORKSHEET = 'worksheet',
-    WORKACT = 'workact',
+    ACT = 'workact',
 }
 
 export enum EDocFormat {
