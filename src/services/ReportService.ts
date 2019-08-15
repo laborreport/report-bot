@@ -1,30 +1,72 @@
 import { AxiosRegular } from '../Agents/AxiosProxy';
 import { AxiosResponse } from 'axios';
 import FormData from 'form-data';
+import { IUserModel } from '../common/CommonConstants';
+
+interface ISendReportBody {
+    user: IUserModel;
+    act_number: number;
+}
+interface ISendReportOptions<T> {
+    url: string;
+    worksheet: ArrayBuffer;
+    body?: T;
+}
+
+export enum EDocFormat {
+    PDF = 'pdf',
+    DOC = 'doc',
+}
+
+const sendReport = async ({
+    url,
+    worksheet,
+    body,
+}: ISendReportOptions<ISendReportBody>) => {
+    const formData = new FormData();
+    formData.append('file', worksheet, { filename: 'report.xlsx' });
+    try {
+        const response: AxiosResponse<Buffer> = await AxiosRegular.post(
+            url,
+            body ? { file: formData, ...body } : formData,
+            {
+                responseType: 'arraybuffer',
+                headers: formData.getHeaders(),
+            }
+        );
+        if (response.status !== 200) throw new Error(response.statusText);
+        return {
+            buffer: response.data,
+            filename: decodeURI(
+                response.headers['content-disposition'].split(`filename=`)[1]
+            ),
+        };
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+};
 export class ReportService {
     static async getReportByWorksheet(worksheet: ArrayBuffer) {
-        const formData = new FormData();
-        formData.append('file', worksheet, { filename: 'report.xlsx' });
-        try {
-            const response: AxiosResponse<Buffer> = await AxiosRegular.post(
-                `${process.env.REPORT_REST_SERVICE}/labor-report`,
-                formData,
-                {
-                    responseType: 'arraybuffer',
-                    headers: formData.getHeaders(),
-                }
-            );
-            if (response.status !== 200) throw new Error(response.statusText);
-            return {
-                buffer: response.data,
-                filename: decodeURI(
-                    response.headers['content-disposition'].split(
-                        `filename=`
-                    )[1]
-                ),
-            };
-        } catch (err) {
-            throw err;
-        }
+        return sendReport({
+            url: `${process.env.REPORT_REST_SERVICE}/labor-report`,
+            worksheet,
+        });
+    }
+
+    static async getActByWorksheet(
+        worksheet: ArrayBuffer,
+        docFormat: EDocFormat = EDocFormat.PDF,
+        user: IUserModel,
+        act_number: number
+    ) {
+        return sendReport({
+            url: `${process.env.REPORT_REST_SERVICE}/act-report/${docFormat}`,
+            worksheet,
+            body: {
+                user,
+                act_number,
+            },
+        });
     }
 }
