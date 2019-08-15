@@ -1,7 +1,8 @@
 import { AxiosRegular } from '../Agents/AxiosProxy';
 import { AxiosResponse } from 'axios';
 import FormData from 'form-data';
-import { IUserModel } from '../common/CommonConstants';
+import { IUserModel } from '../common/CommonTypes';
+import { EDocFormat } from '../common/CommonConstants';
 
 interface ISendReportBody {
     user: IUserModel;
@@ -11,11 +12,6 @@ interface ISendReportOptions<T> {
     url: string;
     worksheet: ArrayBuffer;
     body?: T;
-}
-
-export enum EDocFormat {
-    PDF = 'pdf',
-    DOC = 'doc',
 }
 
 const sendReport = async ({

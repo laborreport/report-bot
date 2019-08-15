@@ -3,14 +3,8 @@ export enum DocumentProcessingType {
     WORKACT = 'workact',
 }
 
-export interface IUserModel {
-    contractNumber: string;
-
-    contractDate: string;
-
-    peSeries: string;
-
-    peNumber: string;
-
-    rate: number;
+export enum EDocFormat {
+    PDF = 'pdf',
+    DOC = 'doc',
+    ODT = 'odt',
 }

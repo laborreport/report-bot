@@ -13,3 +13,11 @@ export interface ISceneContext {
 export type TBotContext = ISessionContext &
     ISceneContext &
     ContextMessageUpdate;
+
+export interface IUserModel {
+    contractNumber: string;
+    contractDate: string;
+    peSeries: string;
+    peNumber: string;
+    rate: number;
+}

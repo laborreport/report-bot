@@ -20,6 +20,7 @@
         "noResolve": true
     },
     "files": [
+        "./typings/joi-date.d.ts",
         {
             "exclude": "./node_modules"
         }

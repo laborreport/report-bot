@@ -8,13 +8,13 @@ import { i18n } from '../i18n';
 import { DocumentProcessingType } from '../common/CommonConstants';
 import { TBotContext } from '../common/CommonTypes';
 import { exampleSceneName } from '../Scenes/Example/Example';
-import { credentialsSceneName } from '../Scenes/Credentials/Credentials';
+import { CredentialsSceneName } from '../Scenes/Credentials/Credentials';
 
 export function Router(bot: Telegraf<TBotContext>) {
     bot.start(ctx => ctx.reply(i18n.welcome));
 
     bot.command('/example', ctx => ctx.scene.enter(exampleSceneName));
-    bot.command('/credentials', ctx => ctx.scene.enter(credentialsSceneName));
+    bot.command('/credentials', ctx => ctx.scene.enter(CredentialsSceneName));
 
     bot.on('document', async ctx => {
         return ctx.reply(i18n.documentPrompt, {
