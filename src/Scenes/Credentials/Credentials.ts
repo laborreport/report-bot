@@ -3,6 +3,7 @@ import { TBotContext } from '../../common/CommonTypes';
 
 import * as JoiBase from '@hapi/joi';
 import JoiDate from '@hapi/joi-date';
+import { ValidatorBlockedSceneFactory } from '../ValidatorBlockedSceneFactory/ValidatorBlockedSceneFactory';
 
 const Joi: JoiBase.Root = JoiBase.extend(JoiDate);
 
@@ -44,32 +45,28 @@ const schema = JoiBase.object().keys({
 const submitMiddleware = (ctx: TBotContext) =>
     ctx.reply(JSON.stringify(ctx.session.userModel));
 
-const CredentialScenes = Object.entries(SceneMessagesMap).map(
-    ([key, message], index) => {
-        const scene = new Scene(key);
-        scene.enter(ctx => ctx.reply(message));
-        scene.composer.on('message', async ctx => {
-            try {
-                const result = await Joi.reach(schema, [key]).validate(
-                    ctx.message.text
-                );
-                ctx.session.userModel = {
-                    ...ctx.session.userModel,
-                    [key]: result,
-                };
-                ctx.scene.leave();
-            } catch (err) {
-                console.error(err);
-                ctx.reply(message);
-            }
-        });
-        scene.composer.command('/cancel', ctx => ctx.scene.leave());
-        scene.leave(ctx => {
-            const nextScene = Object.keys(SceneMessagesMap)[index + 1];
-            ctx.session.userModel[key] && ctx.scene.enter(nextScene);
+const CredentialScenes: Scene[] = Object.entries(SceneMessagesMap).map(
+    ([name, message], index) => {
+        const scene = ValidatorBlockedSceneFactory(
+            name,
+            message,
+            Joi.reach(schema, [name]),
+            (result: string) => {
+                return ctx => {
+                    ctx.session.userModel = {
+                        ...ctx.session.userModel,
+                        [name]: result,
+                    };
 
-            !nextScene && submitMiddleware(ctx);
-        });
+                    const nextScene = Object.keys(SceneMessagesMap)[index + 1];
+                    ctx.session.userModel[name] && ctx.scene.enter(nextScene);
+
+                    !nextScene && submitMiddleware(ctx);
+                };
+            }
+        );
+
+        scene.composer.command('/cancel', ctx => ctx.scene.leave());
 
         return scene;
     }
