@@ -34,7 +34,7 @@ export class SceneManager {
             const {
                 registeredHooks: { enter = () => {} },
             } = this.scenes.get(sceneId) || { registeredHooks: {} };
-            enter(ctx);
+            return enter(ctx);
         };
     }
     private leave(ctx: TBotContext) {
@@ -43,7 +43,7 @@ export class SceneManager {
         const {
             registeredHooks: { leave = () => {} },
         } = this.scenes.get(id) || { registeredHooks: {} };
-        leave(ctx);
+        return leave(ctx);
     }
 
     private sceneHooks = (ctx: TBotContext): ISceneManagerHooks => ({
@@ -64,7 +64,7 @@ export class SceneManager {
             ...ctx.scene,
             leave,
         };
-        next(ctx);
+        return next(ctx);
     };
     private injectEnterHookMiddleware = (
         ctx: TBotContext,
@@ -75,7 +75,7 @@ export class SceneManager {
             ...ctx.scene,
             enter,
         };
-        next(ctx);
+        return next(ctx);
     };
 
     public middleware() {
