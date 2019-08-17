@@ -9,7 +9,7 @@ export interface IUserSession {
         activeSceneId: string;
     };
     userModel?: Partial<IUserModel>;
-    actNumber?: number;
+    act_number?: number;
 }
 export interface IStorageShape {
     [chatId: string]: IUserSession;

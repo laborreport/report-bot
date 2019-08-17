@@ -8,9 +8,9 @@ const ActNumberSceneValidator = JoiBase.number().min(1);
 const ActNumberScene = ValidatorBlockedSceneFactory(
     ActNumberSceneName,
     ActNumberSceneValidator,
-    (actNumber: string) => {
+    (act_number: string) => {
         return ctx => {
-            ctx.session.actNumber = Number(actNumber);
+            ctx.session.act_number = Number(act_number);
             return ctx.reply('ok');
         };
     },

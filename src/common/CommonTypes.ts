@@ -15,9 +15,9 @@ export type TBotContext = ISessionContext &
     ContextMessageUpdate;
 
 export interface IUserModel {
-    contractNumber: string;
-    contractDate: string;
-    peSeries: string;
-    peNumber: string;
+    contract_number: string;
+    contract_date: string;
+    pe_series: string;
+    pe_number: string;
     rate: number;
 }

@@ -1,7 +1,6 @@
 import Telegraf, { Extra, Markup } from 'telegraf';
 import { i18n } from '../i18n';
 import { TBotContext, IUserModel } from '../common/CommonTypes';
-import { exampleSceneName } from '../Scenes/Example/Example';
 import {
     CredentialsCreateSceneName,
     UserModelSchema,
@@ -19,7 +18,6 @@ import { ReportActions } from '../actions/ReportActions';
 import { CredentialsUseSceneName } from '../Scenes/Credentials/CredentialsUse';
 import {
     ActNumberSceneName,
-    ActNumberScene,
     ActNumberSceneValidator,
 } from '../Scenes/ActNumber/ActNumber';
 
@@ -49,10 +47,10 @@ export function Router(bot: Telegraf<TBotContext>) {
         ctx.scene.enter(ActNumberSceneName)
     );
     bot.hears('Показать настройки', async ctx => {
-        const { userModel = {}, actNumber } = ctx.session;
-        const credentials: Partial<IUserModel> & { actNumber?: number } = {
+        const { userModel = {}, act_number } = ctx.session;
+        const credentials: Partial<IUserModel> & { act_number?: number } = {
             ...userModel,
-            ...(actNumber ? { actNumber } : {}),
+            ...(act_number ? { act_number } : {}),
         };
         if (!Object.keys(credentials).length)
             return ctx.reply('Настройки пусты.');
@@ -96,10 +94,10 @@ export function Router(bot: Telegraf<TBotContext>) {
 
     bot.on('callback_query', (ctx, next) => {
         if (ctx.callbackQuery.data === 'usecredentials') {
-            const { actNumber, ...userModel } = ctx.callbackQuery.message.text
+            const { act_number, ...userModel } = ctx.callbackQuery.message.text
                 .split('\n')
                 .map(row => row.split('-'))
-                .reduce<Partial<IUserModel> & { actNumber?: number }>(
+                .reduce<Partial<IUserModel> & { act_number?: number }>(
                     (acc, [key, value]) => {
                         return { ...acc, [key]: value };
                     },
@@ -109,7 +107,7 @@ export function Router(bot: Telegraf<TBotContext>) {
             ctx.session = {
                 ...ctx.session,
                 userModel,
-                actNumber,
+                act_number: act_number,
             };
             return ctx.reply('applied');
         }
@@ -131,16 +129,16 @@ export function Router(bot: Telegraf<TBotContext>) {
                         documentFileId
                     );
                 case DocumentProcessingType.ACT:
-                    const { userModel, actNumber } = ctx.session;
+                    const { userModel, act_number } = ctx.session;
                     const userModelValid = await UserModelSchema.validate(
                         userModel
                     );
 
-                    const actNumberValid = await ActNumberSceneValidator.validate(
-                        actNumber
+                    const act_numberValid = await ActNumberSceneValidator.validate(
+                        act_number
                     );
 
-                    if (!userModelValid || !actNumberValid)
+                    if (!userModelValid || !act_numberValid)
                         return ctx.reply(
                             `Нет данных для формирования отчета.\n`
                         );
@@ -167,7 +165,7 @@ export function Router(bot: Telegraf<TBotContext>) {
         const documentFileId =
             ctx.callbackQuery.message.reply_to_message.document.file_id;
         return ReportActions.sendActDocument(ctx, {
-            act_number: ctx.session.actNumber,
+            act_number: ctx.session.act_number,
             user: ctx.session.userModel,
             docFormat: format,
             documentFileId,

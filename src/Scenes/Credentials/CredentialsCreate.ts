@@ -1,5 +1,5 @@
 import { Scene } from '../../Scene/Scene';
-import { TBotContext } from '../../common/CommonTypes';
+import { TBotContext, IUserModel } from '../../common/CommonTypes';
 
 import * as JoiBase from '@hapi/joi';
 import JoiDate from '@hapi/joi-date';
@@ -11,42 +11,51 @@ const Joi: JoiBase.Root = JoiBase.extend(JoiDate);
 export const DateFormat = 'DD.MM.YYYY';
 
 enum EUserModelKeys {
-    contractNumber = 'contractNumber',
-    contractDate = 'contractDate',
-    peSeries = 'peSeries',
-    peNumber = 'peNumber',
+    contract_number = 'contract_number',
+    contract_date = 'contract_date',
+    pe_series = 'pe_series',
+    pe_number = 'pe_number',
     rate = 'rate',
 }
 
 const SceneMessagesMap = {
-    [EUserModelKeys.contractNumber]: 'Введите номер договора',
-    [EUserModelKeys.contractDate]: 'Введите дату заключения договора',
-    [EUserModelKeys.peSeries]: 'Серия ИП',
-    [EUserModelKeys.peNumber]: 'Номер ИП',
+    [EUserModelKeys.contract_number]: 'Введите номер договора',
+    [EUserModelKeys.contract_date]: 'Введите дату заключения договора',
+    [EUserModelKeys.pe_series]: 'Серия ИП',
+    [EUserModelKeys.pe_number]: 'Номер ИП',
     [EUserModelKeys.rate]: 'Ставка',
 };
 
 export const UserModelSchema = JoiBase.object().keys({
-    [EUserModelKeys.contractNumber]: Joi.number()
+    [EUserModelKeys.contract_number]: Joi.number()
         .min(1)
         .max(99),
-    [EUserModelKeys.contractDate]: Joi.date()
+    [EUserModelKeys.contract_date]: Joi.date()
         .format(DateFormat)
         .options({ convert: true }),
-    [EUserModelKeys.peSeries]: Joi.string().length(2),
-    [EUserModelKeys.peNumber]: Joi.string().length(9),
+    [EUserModelKeys.pe_series]: Joi.string().length(2),
+    [EUserModelKeys.pe_number]: Joi.string().length(9),
     [EUserModelKeys.rate]: Joi.number()
         .min(0)
         .max(2000),
 });
 
 const submitMiddleware = (ctx: TBotContext) => {
+    const { userModel } = ctx.session;
+    const clearedUserModel = Object.keys(userModel)
+        .filter(key => Object.values(EUserModelKeys).includes(key))
+        .reduce<Partial<IUserModel>>((acc, key) => {
+            return { ...acc, [key]: userModel[key] };
+        }, {});
+
+    ctx.session.userModel = clearedUserModel;
+
     const {
-        userModel: { contractDate, ...rest },
+        userModel: { contract_date, ...rest },
     } = ctx.session;
     ctx.session.userModel = {
         ...rest,
-        contractDate: Moment(contractDate).format(DateFormat),
+        contract_date: Moment(contract_date).format(DateFormat),
     };
     ctx.reply(JSON.stringify(ctx.session.userModel));
 };
@@ -77,5 +86,5 @@ const CredentialsCreateScenes: Scene[] = Object.entries(SceneMessagesMap).map(
     }
 );
 
-const CredentialsCreateSceneName = EUserModelKeys.contractNumber;
+const CredentialsCreateSceneName = EUserModelKeys.contract_number;
 export { CredentialsCreateScenes, CredentialsCreateSceneName };

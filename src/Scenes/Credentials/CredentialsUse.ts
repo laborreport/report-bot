@@ -7,10 +7,10 @@ import Moment from 'moment';
 const CredentialsUseScene = ValidatorBlockedSceneFactory(
     CredentialsUseSceneName,
     UserModelSchema,
-    ({ contractDate, ...rest }: Partial<IUserModel>) => ctx => {
+    ({ contract_date, ...rest }: Partial<IUserModel>) => ctx => {
         ctx.session.userModel = {
             ...rest,
-            contractDate: Moment(contractDate).format(DateFormat),
+            contract_date: Moment(contract_date).format(DateFormat),
         };
         ctx.reply(JSON.stringify(ctx.session.userModel));
     },

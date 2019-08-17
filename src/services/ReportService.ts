@@ -3,6 +3,8 @@ import { AxiosResponse } from 'axios';
 import FormData from 'form-data';
 import { IUserModel } from '../common/CommonTypes';
 import { EDocFormat } from '../common/CommonConstants';
+import Moment from 'moment';
+import { DateFormat } from '../Scenes/Credentials/CredentialsCreate';
 
 interface ISendReportBody {
     user: Partial<IUserModel>;
@@ -61,14 +63,19 @@ export class ReportService {
     static async getActByWorksheet(
         worksheet: ArrayBuffer,
         docFormat: EDocFormat = EDocFormat.PDF,
-        user: Partial<IUserModel>,
+        { contract_date, ...restUser }: Partial<IUserModel>,
         act_number: number
     ) {
         return sendReport({
             url: `${process.env.REPORT_REST_SERVICE}/act-report/${docFormat}`,
             worksheet,
             body: {
-                user,
+                user: {
+                    ...restUser,
+                    contract_date: Moment(contract_date, DateFormat).format(
+                        'YYYY-MM-DD'
+                    ),
+                },
                 act_number,
             },
         });

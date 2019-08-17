@@ -52,16 +52,16 @@ export class ReportActions {
                 fileUrl
             );
 
-            const { contractDate, ...restUser } = options.user;
+            // const { contract_date, ...restUser } = options.user;
 
-            const user = {
-                contractDate: Moment(contractDate, DateFormat).toISOString(),
-                ...restUser,
-            };
+            // const user = {
+            //     contract_date: Moment(contract_date, DateFormat).toISOString(),
+            //     ...restUser,
+            // };
 
             console.log(
                 'QQ',
-                user,
+                options.user,
                 options.act_number,
                 options.docFormat,
                 options.documentFileId
@@ -72,7 +72,7 @@ export class ReportActions {
             } = await ReportService.getActByWorksheet(
                 worksheetFile,
                 options.docFormat,
-                user,
+                options.user,
                 options.act_number
             );
             return ctx.telegram.sendDocument(ctx.from.id, {
