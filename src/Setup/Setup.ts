@@ -1,12 +1,12 @@
-import Telegraf, { Middleware } from 'telegraf';
+import Telegraf from 'telegraf';
 import { proxyAgent } from '../Agents/ProxyAgent';
 import { Router } from '../router/Router';
 import { Session } from '../Session/Session';
 import { SceneManager } from '../Scene/SceneManager';
 import { TBotContext } from '../common/CommonTypes';
-import { exampleScene } from '../Scenes/Example/Example';
-import { CredentialScenes } from '../Scenes/Credentials/Credentials';
-import { workSheetScene } from '../Scenes/WorkSheet/Worksheet';
+import { CredentialsCreateScenes } from '../Scenes/Credentials/CredentialsCreate';
+import { ActNumberScene } from '../Scenes/ActNumber/ActNumber';
+import { CredentialsUseScene } from '../Scenes/Credentials/CredentialsUse';
 
 export function Setup() {
     const bot = new Telegraf<TBotContext>(process.env.BOT_TOKEN, {
@@ -16,9 +16,9 @@ export function Setup() {
     const session = new Session({ logging: true });
 
     const sceneManager = new SceneManager([
-        exampleScene,
-        workSheetScene,
-        ...CredentialScenes,
+        ...CredentialsCreateScenes,
+        CredentialsUseScene,
+        ActNumberScene,
     ]);
     bot.use(session.middleware());
     bot.use(sceneManager.middleware());

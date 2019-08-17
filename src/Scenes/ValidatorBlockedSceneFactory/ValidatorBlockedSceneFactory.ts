@@ -3,23 +3,25 @@ import * as JoiBase from '@hapi/joi';
 import { Middleware } from 'telegraf';
 import { TBotContext } from '../../common/CommonTypes';
 
-export const ValidatorBlockedSceneFactory = (
+export const ValidatorBlockedSceneFactory = <T>(
     name: string,
-    message: string,
     validator: JoiBase.Schema,
-    successHook: (result: string) => Middleware<TBotContext>
+    successHook: (result: T) => Middleware<TBotContext>,
+    cancelHook: [string, Middleware<TBotContext>],
+    enterHook?: Middleware<TBotContext>
 ) => {
     const scene = new Scene(name);
-    scene.enter(ctx => ctx.reply(message));
+    scene.composer.command('/cancel', cancelHook[1]);
+    enterHook && scene.enter(enterHook);
     scene.composer.on('message', async ctx => {
         try {
-            const result = await validator.validate(ctx.message.text);
+            const result: T = await validator.validate(ctx.message.text as any);
             const hook = successHook(result);
             scene.leave(hook);
             ctx.scene.leave();
         } catch (err) {
             console.error(err);
-            ctx.reply(message);
+            enterHook(ctx);
         }
     });
 

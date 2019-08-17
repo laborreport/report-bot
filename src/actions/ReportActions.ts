@@ -3,6 +3,8 @@ import { ReportService } from '../services/ReportService';
 import { i18n } from '../i18n';
 import { TBotContext, IUserModel } from '../common/CommonTypes';
 import { EDocFormat } from '../common/CommonConstants';
+import Moment from 'moment';
+import { DateFormat } from '../Scenes/Credentials/CredentialsCreate';
 
 export class ReportActions {
     static async sendProcessedDocumentReport(
@@ -50,13 +52,27 @@ export class ReportActions {
                 fileUrl
             );
 
+            const { contractDate, ...restUser } = options.user;
+
+            const user = {
+                contractDate: Moment(contractDate, DateFormat).toISOString(),
+                ...restUser,
+            };
+
+            console.log(
+                'QQ',
+                user,
+                options.act_number,
+                options.docFormat,
+                options.documentFileId
+            );
             const {
                 buffer: source,
                 filename,
             } = await ReportService.getActByWorksheet(
                 worksheetFile,
                 options.docFormat,
-                options.user,
+                user,
                 options.act_number
             );
             return ctx.telegram.sendDocument(ctx.from.id, {
@@ -64,6 +80,7 @@ export class ReportActions {
                 filename,
             });
         } catch (err) {
+            console.error(err);
             return ctx.reply(
                 ` ${i18n.errors.reportService}\n ${err.toString()}`
             );

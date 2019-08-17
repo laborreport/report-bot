@@ -3,14 +3,10 @@ import { TBotContext } from '../../common/CommonTypes';
 
 import * as JoiBase from '@hapi/joi';
 import JoiDate from '@hapi/joi-date';
+import Moment from 'moment';
 import { ValidatorBlockedSceneFactory } from '../ValidatorBlockedSceneFactory/ValidatorBlockedSceneFactory';
 
 const Joi: JoiBase.Root = JoiBase.extend(JoiDate);
-
-type TValidator = <T>(
-    value: T,
-    options?: JoiBase.ValidationOptions
-) => JoiBase.ValidationResult<T>;
 
 export const DateFormat = 'DD.MM.YYYY';
 
@@ -30,11 +26,13 @@ const SceneMessagesMap = {
     [EUserModelKeys.rate]: 'Ставка',
 };
 
-const schema = JoiBase.object().keys({
+export const UserModelSchema = JoiBase.object().keys({
     [EUserModelKeys.contractNumber]: Joi.number()
         .min(1)
         .max(99),
-    [EUserModelKeys.contractDate]: Joi.date().format(DateFormat),
+    [EUserModelKeys.contractDate]: Joi.date()
+        .format(DateFormat)
+        .options({ convert: true }),
     [EUserModelKeys.peSeries]: Joi.string().length(2),
     [EUserModelKeys.peNumber]: Joi.string().length(9),
     [EUserModelKeys.rate]: Joi.number()
@@ -42,15 +40,22 @@ const schema = JoiBase.object().keys({
         .max(2000),
 });
 
-const submitMiddleware = (ctx: TBotContext) =>
+const submitMiddleware = (ctx: TBotContext) => {
+    const {
+        userModel: { contractDate, ...rest },
+    } = ctx.session;
+    ctx.session.userModel = {
+        ...rest,
+        contractDate: Moment(contractDate).format(DateFormat),
+    };
     ctx.reply(JSON.stringify(ctx.session.userModel));
+};
 
-const CredentialScenes: Scene[] = Object.entries(SceneMessagesMap).map(
+const CredentialsCreateScenes: Scene[] = Object.entries(SceneMessagesMap).map(
     ([name, message], index) => {
         const scene = ValidatorBlockedSceneFactory(
             name,
-            message,
-            Joi.reach(schema, [name]),
+            Joi.reach(UserModelSchema, [name]),
             (result: string) => {
                 return ctx => {
                     ctx.session.userModel = {
@@ -63,14 +68,14 @@ const CredentialScenes: Scene[] = Object.entries(SceneMessagesMap).map(
 
                     !nextScene && submitMiddleware(ctx);
                 };
-            }
+            },
+            ['/cancel', ctx => ctx.scene.leave()],
+            ctx => ctx.reply(message)
         );
-
-        scene.composer.command('/cancel', ctx => ctx.scene.leave());
 
         return scene;
     }
 );
 
-const CredentialsSceneName = EUserModelKeys.contractNumber;
-export { CredentialScenes, CredentialsSceneName };
+const CredentialsCreateSceneName = EUserModelKeys.contractNumber;
+export { CredentialsCreateScenes, CredentialsCreateSceneName };

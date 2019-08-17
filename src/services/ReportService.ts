@@ -21,10 +21,18 @@ const sendReport = async ({
 }: ISendReportOptions<ISendReportBody>) => {
     const formData = new FormData();
     formData.append('file', worksheet, { filename: 'report.xlsx' });
+    Object.keys(body || {}).forEach(key => {
+        formData.append(
+            key,
+            typeof body[key] === 'object'
+                ? JSON.stringify(body[key])
+                : body[key]
+        );
+    });
     try {
         const response: AxiosResponse<Buffer> = await AxiosRegular.post(
             url,
-            body ? { file: formData, ...body } : formData,
+            formData,
             {
                 responseType: 'arraybuffer',
                 headers: formData.getHeaders(),

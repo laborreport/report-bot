@@ -34,9 +34,9 @@ export class Session {
 
     middleware() {
         /** кривые тайпинги next */
-        return async (ctx: TBotContext, next: Middleware<TBotContext>) => {
+        return async (ctx: TBotContext, next: () => void) => {
             ctx.session = this.getOrCreateUserSession(ctx);
-            await next(ctx);
+            await next();
             this.commitUserSession(ctx);
         };
     }
