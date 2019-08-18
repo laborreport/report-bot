@@ -24,7 +24,6 @@ export class Scene {
     }
 
     public middleware(): Middleware<TBotContext> {
-        // TODO: fix when proper typing will be provided by telegraf
         return ((this.composer as unknown) as any).middleware();
     }
 }

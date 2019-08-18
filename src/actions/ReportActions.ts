@@ -3,8 +3,6 @@ import { ReportService } from '../services/ReportService';
 import { i18n } from '../i18n';
 import { TBotContext, IUserModel } from '../common/CommonTypes';
 import { EDocFormat } from '../common/CommonConstants';
-import Moment from 'moment';
-import { DateFormat } from '../Scenes/Credentials/CredentialsCreate';
 
 export class ReportActions {
     static async sendProcessedDocumentReport(
@@ -52,20 +50,6 @@ export class ReportActions {
                 fileUrl
             );
 
-            // const { contract_date, ...restUser } = options.user;
-
-            // const user = {
-            //     contract_date: Moment(contract_date, DateFormat).toISOString(),
-            //     ...restUser,
-            // };
-
-            console.log(
-                'QQ',
-                options.user,
-                options.act_number,
-                options.docFormat,
-                options.documentFileId
-            );
             const {
                 buffer: source,
                 filename,
@@ -80,7 +64,6 @@ export class ReportActions {
                 filename,
             });
         } catch (err) {
-            console.error(err);
             return ctx.reply(
                 ` ${i18n.errors.reportService}\n ${err.toString()}`
             );

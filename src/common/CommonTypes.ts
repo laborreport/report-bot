@@ -21,3 +21,7 @@ export interface IUserModel {
     pe_number: string;
     rate: number;
 }
+
+export interface ISettings extends IUserModel {
+    act_number: number;
+}

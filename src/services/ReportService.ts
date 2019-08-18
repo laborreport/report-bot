@@ -2,9 +2,8 @@ import { AxiosRegular } from '../Agents/AxiosProxy';
 import { AxiosResponse } from 'axios';
 import FormData from 'form-data';
 import { IUserModel } from '../common/CommonTypes';
-import { EDocFormat } from '../common/CommonConstants';
+import { EDocFormat, DateFormat } from '../common/CommonConstants';
 import Moment from 'moment';
-import { DateFormat } from '../Scenes/Credentials/CredentialsCreate';
 
 interface ISendReportBody {
     user: Partial<IUserModel>;

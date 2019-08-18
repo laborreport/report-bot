@@ -1,5 +1,6 @@
 import { ValidatorBlockedSceneFactory } from '../ValidatorBlockedSceneFactory/ValidatorBlockedSceneFactory';
 import * as JoiBase from '@hapi/joi';
+import { i18n } from '../../i18n';
 
 const ActNumberSceneName = 'ActNumberScene';
 
@@ -11,11 +12,11 @@ const ActNumberScene = ValidatorBlockedSceneFactory(
     (act_number: string) => {
         return ctx => {
             ctx.session.act_number = Number(act_number);
-            return ctx.reply('ok');
+            return ctx.reply(i18n.actNumber.actNumberChanged);
         };
     },
     ['/cancel', ctx => ctx.scene.leave()],
-    ctx => ctx.reply('Введите номер акта')
+    ctx => ctx.reply(i18n.actNumber.enterActNumber)
 );
 
 export { ActNumberScene, ActNumberSceneName, ActNumberSceneValidator };
