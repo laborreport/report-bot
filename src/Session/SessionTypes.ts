@@ -1,4 +1,4 @@
-import { IUserModel } from '../common/CommonTypes';
+import { IUserModel, ISettings } from '../common/CommonTypes';
 
 export interface ISessionOptions {
     logging: boolean;
@@ -8,8 +8,8 @@ export interface IUserSession {
     scenes?: {
         activeSceneId: string;
     };
-    userModel?: Partial<IUserModel>;
-    act_number?: number;
+    settings: Partial<ISettings>;
+    tempSettings: Partial<ISettings>;
 }
 export interface IStorageShape {
     [chatId: string]: IUserSession;

@@ -1,22 +1,33 @@
 import { ValidatorBlockedSceneFactory } from '../ValidatorBlockedSceneFactory/ValidatorBlockedSceneFactory';
 import * as JoiBase from '@hapi/joi';
-import { i18n } from '../../i18n';
+import { i18n, CANCEL_COMMAND } from '../../i18n';
+import { SettingsSchema } from '../Settings/SettingsSceneSet';
+import { ESettingsKeys } from '../../common/CommonConstants';
+import { helpers } from '../../helpers/helpers';
 
 const ActNumberSceneName = 'ActNumberScene';
 
-const ActNumberSceneValidator = JoiBase.number().min(1);
-
-const ActNumberScene = ValidatorBlockedSceneFactory(
-    ActNumberSceneName,
-    ActNumberSceneValidator,
-    (act_number: string) => {
+const ActNumberScene = ValidatorBlockedSceneFactory({
+    name: ActNumberSceneName,
+    validator: JoiBase.reach(SettingsSchema, ESettingsKeys.act_number),
+    successHook: (act_number: string) => {
         return ctx => {
-            ctx.session.act_number = Number(act_number);
+            ctx.session.settings = {
+                ...ctx.session.settings,
+                act_number: Number(act_number),
+            };
             return ctx.reply(i18n.actNumber.actNumberChanged);
         };
     },
-    ['/cancel', ctx => ctx.scene.leave()],
-    ctx => ctx.reply(i18n.actNumber.enterActNumber)
-);
+    cancelHook: [
+        CANCEL_COMMAND,
+        ctx => {
+            helpers.messages.exit(ctx);
+            ctx.scene.leave();
+        },
+    ],
+    enterHook: ctx =>
+        ctx.reply(i18n.settingsEnterMessage[ESettingsKeys.act_number]),
+});
 
-export { ActNumberScene, ActNumberSceneName, ActNumberSceneValidator };
+export { ActNumberScene, ActNumberSceneName };

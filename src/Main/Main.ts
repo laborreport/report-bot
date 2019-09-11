@@ -1,78 +1,37 @@
 import Telegraf, { Extra, Markup, Middleware } from 'telegraf';
-import { i18n, settingsFormatter, settingsParser } from '../i18n';
+import { i18n } from '../i18n';
 import { TBotContext, ISettings } from '../common/CommonTypes';
 import {
-    CredentialsCreateSceneName,
-    UserModelSchema,
-} from '../Scenes/Credentials/CredentialsCreate';
-import {
-    DocumentActionsKeyboard,
-    IDocumentActionsButton,
-} from '../keyboards/DocumentActionsKeyboard';
+    SettingsSceneSetName,
+    SettingsSchema,
+} from '../Scenes/Settings/SettingsSceneSet';
+import { DocumentActionsKeyboard } from '../keyboards/DocumentActionsKeyboard';
 import { DocumentProcessingType, EDocFormat } from '../common/CommonConstants';
 import { ReportActions } from '../actions/ReportActions';
-import {
-    ActNumberSceneName,
-    ActNumberSceneValidator,
-} from '../Scenes/ActNumber/ActNumber';
+import { ActNumberSceneName } from '../Scenes/ActNumber/ActNumber';
 import { FormatKeyboard } from '../keyboards/FormatKeyboard';
+import { helpers } from '../helpers/helpers';
+import * as JoiBase from '@hapi/joi';
 
-const start = (ctx: TBotContext) =>
-    ctx.reply(
-        i18n.welcome,
-        Extra.HTML().markup(
-            Markup.keyboard([
-                Markup.button(i18n.mainKeyboard.changeSettings),
-                Markup.button(i18n.mainKeyboard.showSettings),
-                Markup.button(i18n.mainKeyboard.ChangeActNumber),
-            ])
-        )
-    );
 export function Main(bot: Telegraf<TBotContext>) {
-    bot.start(start);
+    bot.start(helpers.messages.start);
+    bot.help(helpers.messages.start);
 
     bot.hears(i18n.mainKeyboard.changeSettings, ctx =>
-        ctx.scene.enter(CredentialsCreateSceneName)
+        ctx.scene.enter(SettingsSceneSetName)
     );
     bot.hears(i18n.mainKeyboard.ChangeActNumber, ctx =>
         ctx.scene.enter(ActNumberSceneName)
     );
-    bot.hears(i18n.mainKeyboard.showSettings, async ctx => {
-        const { userModel = {}, act_number } = ctx.session;
-        const credentials: Partial<ISettings> = {
-            ...userModel,
-            ...(act_number ? { act_number } : {}),
-        };
-        if (!Object.keys(credentials).length)
-            return ctx.reply('Настройки пусты.');
-
-        try {
-            return ctx.reply(
-                settingsFormatter(credentials),
-                Extra.HTML().markup(
-                    Markup.inlineKeyboard([
-                        Markup.callbackButton(
-                            i18n.callbackButtons.setSettings.text,
-                            i18n.callbackButtons.setSettings.callbackData
-                        ),
-                    ])
-                )
-            );
-        } catch (err) {
-            return console.error(err);
-        }
-    });
+    bot.hears(i18n.mainKeyboard.showSettings, ctx => helpers.showSettings(ctx));
 
     bot.on('document', async ctx => {
-        const userModel = await UserModelSchema.validate(ctx.session.userModel);
         return ctx.reply(i18n.documentPrompt, {
             reply_markup: {
                 inline_keyboard: [
                     [
                         DocumentActionsKeyboard.workSheetButton,
-                        ...(userModel
-                            ? [DocumentActionsKeyboard.actButton]
-                            : []),
+                        DocumentActionsKeyboard.actButton,
                     ],
                 ],
             },
@@ -80,84 +39,85 @@ export function Main(bot: Telegraf<TBotContext>) {
         });
     });
 
-    bot.on('callback_query', (ctx, next) => {
-        if (
-            ctx.callbackQuery.data ===
-            i18n.callbackButtons.setSettings.callbackData
-        ) {
-            const { act_number, ...userModel } = settingsParser(
-                ctx.callbackQuery.message.text
-            );
-
-            ctx.session = {
-                ...ctx.session,
-                userModel,
-                act_number,
-            };
-            return ctx.reply(i18n.settings.applied);
+    bot.on(
+        'callback_query',
+        async (ctx: TBotContext, next: Middleware<TBotContext>) => {
+            if (ctx.callbackQuery.data === DocumentProcessingType.WORKSHEET) {
+                try {
+                    const documentFileId =
+                        ctx.callbackQuery.message.reply_to_message.document
+                            .file_id;
+                    return ReportActions.sendProcessedDocumentReport(
+                        ctx,
+                        documentFileId
+                    );
+                } catch (err) {
+                    console.error(err);
+                    helpers.messages.Error(ctx);
+                }
+            } else {
+                next(ctx);
+            }
         }
-        return next();
+    );
+
+    bot.on('callback_query', async (ctx, next: Middleware<TBotContext>) => {
+        if (ctx.callbackQuery.data === DocumentProcessingType.ACT) {
+            try {
+                const settings = await SettingsSchema.validate(
+                    ctx.session.settings
+                );
+                return ctx.reply(
+                    i18n.actFormat,
+                    Extra.HTML()
+                        .inReplyTo(
+                            ctx.callbackQuery.message.reply_to_message
+                                .message_id
+                        )
+                        .markup(FormatKeyboard)
+                );
+            } catch (err) {
+                console.error(err);
+                // TODO: new helper
+
+                helpers.messages.Error(ctx);
+            }
+        } else {
+            next(ctx);
+        }
     });
 
     bot.on(
         'callback_query',
-        async (ctx: TBotContext, next: Middleware<TBotContext>) => {
+        (ctx: TBotContext, next: Middleware<TBotContext>) => {
             const format: EDocFormat = ctx.callbackQuery.data as EDocFormat;
 
             if (!Object.values(EDocFormat).includes(format)) return next(ctx);
             const documentFileId =
                 ctx.callbackQuery.message.reply_to_message.document.file_id;
 
-            const { userModel, act_number } = ctx.session;
-            const userModelValid = await UserModelSchema.validate(userModel);
+            const { settings = {} } = ctx.session;
+            const { error } = SettingsSchema.validate(settings);
 
-            const act_numberValid = await ActNumberSceneValidator.validate(
-                act_number
-            );
+            if (error)
+                return ctx.reply(
+                    `${i18n.settingsState.notEnough}\n${JSON.stringify(
+                        error.details.map(({ message }) => message).join('\n')
+                    )}`
+                );
 
-            if (!userModelValid || !act_numberValid)
-                return ctx.reply(i18n.settings.notEnough);
+            const { act_number, ...userModel }: Partial<ISettings> = settings;
             return ReportActions.sendActDocument(ctx, {
-                act_number: ctx.session.act_number,
-                user: ctx.session.userModel,
+                act_number: act_number,
+                user: userModel,
                 docFormat: format,
                 documentFileId,
             });
         }
     );
-    bot.on('callback_query', async (ctx: TBotContext, next: () => void) => {
-        try {
-            const { action }: IDocumentActionsButton = JSON.parse(
-                ctx.callbackQuery.data
-            );
-            if (!action) return next();
-            const documentFileId =
-                ctx.callbackQuery.message.reply_to_message.document.file_id;
-            switch (action) {
-                case DocumentProcessingType.WORKSHEET:
-                    return ReportActions.sendProcessedDocumentReport(
-                        ctx,
-                        documentFileId
-                    );
-                case DocumentProcessingType.ACT:
-                    return ctx.reply(
-                        i18n.actFormat,
-                        Extra.HTML()
-                            .inReplyTo(
-                                ctx.callbackQuery.message.reply_to_message
-                                    .message_id
-                            )
-                            .markup(FormatKeyboard)
-                    );
+    bot.on('callback_query', helpers.applySettings);
 
-                default:
-                    return ctx.reply(i18n.errors.callbackActionNotFound);
-            }
-        } catch (err) {
-            console.error(err);
-            return ctx.reply(i18n.errors.callbackDataCorrupted);
-        }
-    });
+    bot.on('callback_query', helpers.messages.Error);
 
-    bot.on('message', start);
+    bot.on('message', helpers.messages.start);
 }

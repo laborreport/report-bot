@@ -1,80 +1,79 @@
 import {
     DocumentProcessingType,
-    EUserModelKeys,
+    ESettingsKeys,
     DateFormat,
 } from './common/CommonConstants';
-import { IUserModel, ISettings } from './common/CommonTypes';
+import { ISettings } from './common/CommonTypes';
 
+const SETTINGS_SEPARATOR = '|';
+export const CANCEL_COMMAND = '/cancel';
 export const settingsFormatter = (credentials: Partial<ISettings>) => {
     return Object.keys(credentials)
         .filter(key => Boolean(credentials[key]))
-        .map(key => [i18n.credentials[key], key, credentials[key]].join(' -- '))
+        .map(key =>
+            [i18n.settings[key], key, credentials[key]].join(SETTINGS_SEPARATOR)
+        )
         .join('\n');
 };
 
 export const settingsParser = (text: string) => {
     return text
         .split('\n')
-        .map(row => row.split(' -- '))
+        .map(row => row.split(SETTINGS_SEPARATOR))
         .reduce<Partial<ISettings>>((acc, [, key, value]) => {
             return { ...acc, [key]: value };
         }, {});
 };
 export const i18n = {
     mainKeyboard: {
-        changeSettings: 'Изменить настройки',
-        showSettings: 'Показать настройки',
-        ChangeActNumber: 'Изменить номер акта',
+        changeSettings: `Изменить настройки`,
+        showSettings: `Показать настройки`,
+        ChangeActNumber: `Изменить номер акта`,
     },
+
+    exit: `Выход`,
 
     callbackButtons: {
         setSettings: {
-            text: 'Выставить эти настройки',
-            callbackData: 'usercredentials',
+            text: `Применить эти настройки`,
+            callbackData: `usercredentials`,
         },
     },
+    settingsState: {
+        empty: `Настройки пусты.`,
+        applied: `Настройки применены.`,
+        notEnough: `Не хватает настроек. Заполните данные о себе через кнопку "Изменить параметры" в меню.`,
+    },
     settings: {
-        empty: 'Настройки пусты.',
-        applied: 'Настройки применены',
-        notEnough: 'Не хватает настроек',
-    },
-    credentials: {
-        [EUserModelKeys.contract_number]: 'Номер договора с ООО «ПИРС»:',
-        [EUserModelKeys.contract_date]: `Дата заключения договора с ООО «ПИРС»:`,
-        [EUserModelKeys.pe_series]: 'Серия Свидетельства о регистрации ИП:',
-        [EUserModelKeys.pe_number]: 'Номер Свидетельства о регистрации ИП:',
-        [EUserModelKeys.rate]: 'Размер ставки',
-
-        act_number: 'Номер акта',
+        [ESettingsKeys.contract_number]: `Номер договора с ООО «ПИРС»`,
+        [ESettingsKeys.contract_date]: `Дата заключения договора с ООО «ПИРС»`,
+        [ESettingsKeys.pe_series]: `Серия Свидетельства о регистрации ИП`,
+        [ESettingsKeys.pe_number]: `Номер Свидетельства о регистрации ИП`,
+        [ESettingsKeys.rate]: `Размер ставки`,
+        [ESettingsKeys.act_number]: `Номер акта`,
     },
 
-    credentialsEnterMessage: {
-        [EUserModelKeys.contract_number]:
-            'Введите номер Договора с ООО «ПИРС»:',
-        [EUserModelKeys.contract_date]: `Введите дату заключения Договора с ООО «ПИРС» (в формате ${DateFormat}) :`,
-        [EUserModelKeys.pe_series]:
-            'Введите серию Свидетельства о регистрации ИП:',
-        [EUserModelKeys.pe_number]:
-            'Введите номер Свидетельства о регистрации ИП:',
-        [EUserModelKeys.rate]: 'Введите размер вашей ставки:',
+    settingsEnterMessage: {
+        [ESettingsKeys.contract_number]: `Введите номер Договора с ООО «ПИРС». ${CANCEL_COMMAND} для отмены`,
+        [ESettingsKeys.contract_date]: `Введите дату заключения Договора с ООО «ПИРС» (в формате ${DateFormat}) :`,
+        [ESettingsKeys.pe_series]: `Введите серию Свидетельства о регистрации ИП. ${CANCEL_COMMAND} для отмены`,
+        [ESettingsKeys.pe_number]: `Введите номер Свидетельства о регистрации ИП. ${CANCEL_COMMAND} для отмены`,
+        [ESettingsKeys.rate]: `Введите размер вашей ставки. ${CANCEL_COMMAND} для отмены`,
+        [ESettingsKeys.act_number]: `Введите номер акта. В дальнейшем можно изменить этот параметр из меню. ${CANCEL_COMMAND} для отмены`,
     },
     actNumber: {
-        enterActNumber: 'Введите номер акта',
-        actNumberChanged: 'Номер акта применен',
+        actNumberChanged: `Номер акта применен.`,
     },
-    act: 'Акт',
-    welcome:
-        'Привет! Пришли мне выгрузку из Jira, я создам тебе отчет трудозатрат.',
-    documentPrompt: 'Что сделать с файлом?',
-    actFormat: 'Формат акта',
+    welcome: `Привет! Пришли мне выгрузку из Jira и я создам отчет трудозатрат или акт выполненных работ.`,
+    documentPrompt: `Что сделать с файлом?`,
+    actFormat: `Выберите формат акта. Правильное отображение гарантируется только блаблабла`,
     documentType: {
-        [DocumentProcessingType.WORKSHEET]: 'Трудозатраты',
-        [DocumentProcessingType.ACT]: 'Акт выполненных работ',
+        [DocumentProcessingType.WORKSHEET]: `Трудозатраты`,
+        [DocumentProcessingType.ACT]: `Акт выполненных работ`,
     },
     errors: {
-        reportService: 'Поймал ошибку при обработке документа 😔 ',
-        callbackActionNotFound: 'Не могу обработать эту кнопку 😔',
-        callbackDataCorrupted:
-            'Не могу обработать эту кнопку. Данные устарели 😔',
+        reportService: `Поймал ошибку при обработке документа 😔 `,
+        callbackActionNotFound: `Не могу обработать эту кнопку 😔`,
+        commonError: `Не могу обработать запрос 😔`,
     },
 };

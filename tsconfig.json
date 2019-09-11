@@ -16,8 +16,12 @@
         "noImplicitReturns": true,
         "forceConsistentCasingInFileNames": true,
         "pretty": true,
+        "noUnusedParameters": true,
+        "inlineSourceMap": true,
         "strictNullChecks": true,
-        "noResolve": true
+        "noResolve": true,
+        "allowUnusedLabels": false,
+        "no-unused-variable": true
     },
     "files": [
         "./typings/joi-date.d.ts",

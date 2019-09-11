@@ -7,14 +7,10 @@ export interface IDocumentActionsButton {
 export const DocumentActionsKeyboard = {
     workSheetButton: {
         text: i18n.documentType[DocumentProcessingType.WORKSHEET],
-        callback_data: JSON.stringify({
-            action: DocumentProcessingType.WORKSHEET,
-        } as IDocumentActionsButton),
+        callback_data: DocumentProcessingType.WORKSHEET,
     },
     actButton: {
         text: i18n.documentType[DocumentProcessingType.ACT],
-        callback_data: JSON.stringify({
-            action: DocumentProcessingType.ACT,
-        } as IDocumentActionsButton),
+        callback_data: DocumentProcessingType.ACT,
     },
 };
