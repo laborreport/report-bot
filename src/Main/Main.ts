@@ -99,12 +99,7 @@ export function Main(bot: Telegraf<TBotContext>) {
             const { settings = {} } = ctx.session;
             const { error } = SettingsSchema.validate(settings);
 
-            if (error)
-                return ctx.reply(
-                    `${i18n.settingsState.notEnough}\n${JSON.stringify(
-                        error.details.map(({ message }) => message).join('\n')
-                    )}`
-                );
+            if (error) return ctx.reply(`${i18n.settingsState.notEnough}`);
 
             const { act_number, ...userModel }: Partial<ISettings> = settings;
             return ReportActions.sendActDocument(ctx, {

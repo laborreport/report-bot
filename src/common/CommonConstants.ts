@@ -5,7 +5,7 @@ export enum DocumentProcessingType {
 
 export enum EDocFormat {
     PDF = 'pdf',
-    DOC = 'doc',
+    DOC = 'docx',
     ODT = 'odt',
 }
 
