@@ -38,7 +38,8 @@ export const helpers = {
     },
     async showSettings(ctx: TBotContext, credentials?: Partial<ISettings>) {
         const creds = credentials || processors.gatherCredentials(ctx);
-        if (!Object.keys(creds).length) return ctx.reply('Настройки пусты.');
+        if (!Object.keys(creds).length)
+            return ctx.reply(i18n.settingsState.empty);
 
         try {
             return ctx.reply(
