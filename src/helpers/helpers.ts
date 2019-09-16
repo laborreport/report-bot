@@ -39,7 +39,13 @@ export const helpers = {
     async showSettings(ctx: TBotContext, credentials?: Partial<ISettings>) {
         const creds = credentials || processors.gatherCredentials(ctx);
         if (!Object.keys(creds).length)
-            return ctx.reply(i18n.settingsState.empty);
+            return ctx.reply(i18n.settingsState.empty, Extra.HTML().markup(
+                Markup.keyboard([
+                    Markup.button(i18n.mainKeyboard.changeSettings),
+                    Markup.button(i18n.mainKeyboard.showSettings),
+                    Markup.button(i18n.mainKeyboard.ChangeActNumber),
+                ])
+            ));
 
         try {
             return ctx.reply(
