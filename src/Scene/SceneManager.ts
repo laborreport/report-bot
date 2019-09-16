@@ -3,7 +3,7 @@ import { Middleware, Composer } from 'telegraf';
 import { TBotContext } from '../common/CommonTypes';
 
 export interface ISceneManagerHooks {
-    enter?: (sceneId: string) => void;
+    enter?: (sceneId: string) => Promise<any>;
     leave?: () => void;
 }
 
@@ -14,15 +14,19 @@ export class SceneManager {
     }
 
     private getActiveSceneId({
-        session: { scenes: { activeSceneId } } = {
-            scenes: { activeSceneId: null },
+        state: {
+            session: { scenes: { activeSceneId } } = {
+                scenes: { activeSceneId: null },
+            },
         },
     }: TBotContext) {
         return activeSceneId;
     }
     private checkWhetherSceneIsInProgress({
-        session: { scenes: { activeSceneId } } = {
-            scenes: { activeSceneId: null },
+        state: {
+            session: { scenes: { activeSceneId } } = {
+                scenes: { activeSceneId: null },
+            },
         },
     }: TBotContext) {
         return this.scenes.has(activeSceneId);
@@ -30,7 +34,7 @@ export class SceneManager {
 
     private enter(ctx: TBotContext) {
         return (sceneId: string) => {
-            ctx.session.scenes.activeSceneId = sceneId;
+            ctx.state.session.scenes.activeSceneId = sceneId;
             const {
                 registeredHooks: { enter = () => {} },
             } = this.scenes.get(sceneId) || { registeredHooks: {} };
@@ -39,7 +43,7 @@ export class SceneManager {
     }
     private leave(ctx: TBotContext) {
         const id = this.getActiveSceneId(ctx);
-        ctx.session.scenes.activeSceneId = null;
+        ctx.state.session.scenes.activeSceneId = null;
         const {
             registeredHooks: { leave = () => {} },
         } = this.scenes.get(id) || { registeredHooks: {} };

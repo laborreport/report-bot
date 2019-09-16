@@ -56,7 +56,7 @@ export function Main(bot: Telegraf<TBotContext>) {
                     helpers.messages.Error(ctx);
                 }
             } else {
-                next(ctx);
+                return next(ctx);
             }
         }
     );
@@ -65,7 +65,7 @@ export function Main(bot: Telegraf<TBotContext>) {
         if (ctx.callbackQuery.data === DocumentProcessingType.ACT) {
             try {
                 const settings = await SettingsSchema.validate(
-                    ctx.session.settings
+                    ctx.state.session.settings
                 );
                 return ctx.reply(
                     i18n.actFormat,
@@ -80,10 +80,10 @@ export function Main(bot: Telegraf<TBotContext>) {
                 console.error(err);
                 // TODO: new helper
 
-                helpers.messages.Error(ctx);
+                return helpers.messages.Error(ctx);
             }
         } else {
-            next(ctx);
+            return next(ctx);
         }
     });
 
@@ -96,7 +96,7 @@ export function Main(bot: Telegraf<TBotContext>) {
             const documentFileId =
                 ctx.callbackQuery.message.reply_to_message.document.file_id;
 
-            const { settings = {} } = ctx.session;
+            const { settings = {} } = ctx.state.session;
             const { error } = SettingsSchema.validate(settings);
 
             if (error)

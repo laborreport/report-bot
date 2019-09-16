@@ -12,7 +12,7 @@ export function Setup() {
         telegram: { agent: proxyAgent },
     });
 
-    const session = new Session({ logging: false });
+    const session = new Session({ logging: true });
 
     const sceneManager = new SceneManager([
         ...SettingsSceneSet,
