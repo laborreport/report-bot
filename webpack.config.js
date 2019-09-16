@@ -31,7 +31,7 @@ module.exports = (env = {}) => {
                 },
             ],
         },
-        devtool: env.development ? 'source-map' : false,
+        devtool: env.development ? 'inline-cheap-module-source-map' : false,
         plugins: env.development
             ? [
                   new NodemonPlugin({

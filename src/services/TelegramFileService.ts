@@ -1,4 +1,4 @@
-import { AxiosProxy } from '../utils/AxiosProxy';
+import { AxiosProxy } from '../Agents/AxiosProxy';
 import { AxiosResponse } from 'axios';
 
 export class TelegramFileService {

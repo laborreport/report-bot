@@ -1,8 +1,10 @@
 {
     "compilerOptions": {
         "module": "es2015",
-        "target": "ES2017",
+        "target": "esnext",
+        "lib": ["esnext"],
         "noImplicitAny": true,
+        "noUnusedLocals": true,
         "removeComments": true,
         "moduleResolution": "node",
         "preserveConstEnums": true,
@@ -14,10 +16,15 @@
         "noImplicitReturns": true,
         "forceConsistentCasingInFileNames": true,
         "pretty": true,
+        "noUnusedParameters": true,
+        "inlineSourceMap": true,
         "strictNullChecks": true,
-        "noResolve": true
+        "noResolve": true,
+        "allowUnusedLabels": false,
+        "no-unused-variable": true
     },
     "files": [
+        "./typings/joi-date.d.ts",
         {
             "exclude": "./node_modules"
         }

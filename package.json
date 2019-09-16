@@ -21,9 +21,13 @@
     },
     "homepage": "https://github.com/laborreport/report-bot#readme",
     "dependencies": {
+        "@hapi/joi": "^15.1.0",
+        "@hapi/joi-date": "^1.3.0",
         "axios": "0.19.0",
         "dotenv": "8.0.0",
         "form-data": "2.5.0",
+        "lowdb": "^1.0.0",
+        "moment": "^2.24.0",
         "proxy-agent": "3.1.0",
         "telegraf": "3.30.1"
     },
@@ -33,6 +37,9 @@
         "@babel/preset-typescript": "7.3.3",
         "@types/axios": "0.14.0",
         "@types/dotenv": "6.1.1",
+        "@types/hapi__joi": "^15.0.3",
+        "@types/joi": "^14.3.3",
+        "@types/lowdb": "^1.0.9",
         "@types/node": "12.0.12",
         "babel-core": "6.26.3",
         "babel-loader": "8.0.6",

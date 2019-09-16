@@ -1,3 +1,3 @@
-import { setupBot } from './setupBot';
+import { Setup } from './Setup/Setup';
 
-setupBot();
+Setup();
