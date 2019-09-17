@@ -71,12 +71,9 @@ const SettingsSceneSet: Scene[] = Object.entries(i18n.settingsEnterMessage).map(
                 }
             },
             enterHook: ctx => {
-                console.log('---entering ', name, scene, ctx.state.session);
-
                 return ctx.reply(message);
             },
             cancelHook: ctx => {
-                console.log('---leaving ', name, scene, ctx.state.session);
                 return helpers.messages.exit(ctx).then(ctx.scene.leave);
             },
         });
