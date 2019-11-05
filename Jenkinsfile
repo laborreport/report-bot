@@ -14,10 +14,10 @@ pipeline {
     }
 
     environment{
-        deployServerIp = '192.168.32.6'
-        deployServerHostname = 'ganimed'
-        deployServerCredential = 'ganimed'
-        registryAddress = '192.168.32.4:5000'
+        deployServerIp = "${DEPLOY_SERVER_IP}"
+        deployServerHostname = "${DEPLOY_SERVER_HOSTNAME}"
+        deployServerCredential = "${DEPLOY_SERVER_CREDENTIAL}"
+        registryAddress = "${REGISTRY_ADDRESS}"
         nameImage = 'report-bot'
         numberBuild = "${env.BUILD_NUMBER}"
     }
