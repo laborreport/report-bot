@@ -27,18 +27,17 @@ bot.on('document'|'message'| updateType, middleware)
 bot.use(composer.middleware());
 ```
 У класса есть статические методы которые позволяют комбинировать Middleware как душе угодно.
+- `Composer.compose` - Комбинирует список Middleware в одну.
+- `Composer.optional` - Генерирует Middleware, которая отрабатывает только если `condition === true`
+```ts
+const OptionalMiddleware = Composer.optional(true | ctx => true, ctx => ctx.reply('this will work'));
+```
+- `Composer.branch` - Генерирует if/else развилку.
+```ts
+const BranchMiddleware = Composer.branch(boolean, ctx => ctx.reply('this will work if true'), ctx => ctx.reply('this will work if false'));
+const BranchMiddleware = Composer.branch(ctx => boolean, ctx => ctx.reply('this will work if true'), ctx => ctx.reply('this will work if false'));
+```
 
-  - *Composer.compose* - Комбинирует список Middleware в одну.
-  - *Composer.optional* - Генерирует Middleware, которая отрабатывает только если `condition === true`
-    ```js
-    const OptionalMiddleware = Composer.optional(true | ctx => true, ctx => ctx.reply('this will work'));
-    ```
-  - *Composer.branch* - Генерирует ifelse развилку.
-    ```js
-    const BranchMiddleware = Composer.branch(boolean, ctx => ctx.reply('this will work if true'), ctx => ctx.reply('this will work if false'));
-    const BranchMiddleware = Composer.branch(ctx => boolean, ctx => ctx.reply('this will work if true'), ctx => ctx.reply('this will work if false'));
-
-    ```
 # Зачем нужны сцены
 Для заполнения данных пользователем, необходимо держать его в контексте этой "формы" какое-то время, не отвлекаясь на другие обработчики. В моей задаче необходимо было задать пользователю несколько вопросов с валидацией его ответов. Сцена в конкретном примере позволяет заблокировать исполнение бота в рамках конкретного вопроса до тех пор, пока пользователь не выйдет из сцены (посредством команды `/cancel` например) или не пройдет валидацию конкретного вопроса. Каждый вопрос будет отдельной сценой, блокирующей нить исполнения для конкретного пользователя. Набор вопросов таким образом можно реализовать на основе нескольких сцен открывающихся друг за другом. Для того чтобы разные пользователи могли параллельно заполнять разные формы необходимо где-то хранить состояние каждого из них, а конкретно текущую сцену(или ее отсутствие). 
 
