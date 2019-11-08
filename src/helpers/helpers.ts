@@ -4,14 +4,19 @@ import { Extra, Markup } from 'telegraf';
 
 import * as JoiBase from '@hapi/joi';
 import { SettingsSchema } from '../Scenes/Settings/SettingsSceneSet';
-import { throwStatement } from '@babel/types';
 
 export const processors = {
     gatherCredentials: (ctx: TBotContext, fromTemp = false) => {
-        const { session: { tempSettings = {}, settings = {} } = {} } = ctx;
+        const {
+            state: { session: { tempSettings = {}, settings = {} } = {} },
+        } = ctx;
         if (!fromTemp) {
             return settings;
         } else {
+            ctx.state.session = {
+                ...ctx.state.session,
+                tempSettings: {},
+            };
             return tempSettings;
         }
     },
@@ -39,7 +44,16 @@ export const helpers = {
     async showSettings(ctx: TBotContext, credentials?: Partial<ISettings>) {
         const creds = credentials || processors.gatherCredentials(ctx);
         if (!Object.keys(creds).length)
-            return ctx.reply(i18n.settingsState.empty);
+            return ctx.reply(
+                i18n.settingsState.empty,
+                Extra.HTML().markup(
+                    Markup.keyboard([
+                        Markup.button(i18n.mainKeyboard.changeSettings),
+                        Markup.button(i18n.mainKeyboard.showSettings),
+                        Markup.button(i18n.mainKeyboard.ChangeActNumber),
+                    ])
+                )
+            );
 
         try {
             return ctx.reply(
@@ -68,8 +82,8 @@ export const helpers = {
                 const { error } = JoiBase.validate(settings, SettingsSchema);
                 if (error) throw error;
 
-                ctx.session = {
-                    ...ctx.session,
+                ctx.state.session = {
+                    ...ctx.state.session,
                     settings: settings,
                 };
                 return ctx.reply(i18n.settingsState.applied);
@@ -78,7 +92,7 @@ export const helpers = {
                 return helpers.messages.Error(ctx);
             }
         } else {
-            next();
+            return next();
         }
     },
 };

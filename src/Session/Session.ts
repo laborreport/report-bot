@@ -12,30 +12,61 @@ export class Session {
         this.storage = Lowdb(new Memory<IStorageShape>('memorySession'));
     }
 
-    getKey = ({ chat: { id, username } }: TBotContext) => {
-        return [id, username].join('---');
+    getKey = (ctx: TBotContext) => {
+        if (ctx.from && ctx.chat) {
+            return `${ctx.from.id}:${ctx.chat.id}`;
+        } else if (ctx.from && ctx.inlineQuery) {
+            return `${ctx.from.id}:${ctx.from.id}`;
+        }
+
+        throw `---NO-SESSION-KEY ${JSON.stringify(ctx.from)} ${JSON.stringify(
+            ctx.chat
+        )}`;
     };
 
     getOrCreateUserSession(ctx: TBotContext) {
         const userSession = this.storage.getState()[this.getKey(ctx)] || {
+            sessionId: this.getKey(ctx),
             scenes: {
                 activeSceneId: null,
             },
+            settings: {},
+            tempSettings: {},
         };
         this.options.logging &&
-            console.log('session get or create', this.getKey(ctx), userSession);
+            console.log(
+                '<<< session get or create',
+                this.getKey(ctx),
+                userSession
+            );
         return userSession;
     }
     commitUserSession(ctx: TBotContext) {
         this.options.logging &&
-            console.log('session commit', this.getKey(ctx), ctx.session);
-        return this.storage.set(this.getKey(ctx), ctx.session).write();
+            console.log(
+                '>>> session commit',
+                this.getKey(ctx),
+                '===',
+                ctx.state.session.sessionId,
+                ctx.state.session
+            );
+
+        if (ctx.state.session.sessionId !== this.getKey(ctx)) {
+            console.error(
+                '************************CRITICAL',
+                'SESSIONCHANGE',
+                this.getKey(ctx)
+            );
+            throw JSON.stringify(ctx.state.session);
+        }
+
+        return this.storage.set(this.getKey(ctx), ctx.state.session).write();
     }
 
     middleware() {
         /** кривые тайпинги next */
         return async (ctx: TBotContext, next: () => void) => {
-            ctx.session = this.getOrCreateUserSession(ctx);
+            ctx.state.session = this.getOrCreateUserSession(ctx);
             await next();
             this.commitUserSession(ctx);
         };
