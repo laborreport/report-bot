@@ -59,7 +59,7 @@ pipeline {
                             remote.host = deployServerIp
                             remote.password = PASSWORD
                             stage("Deploy docker container") {
-                                sh "docker ps -q --filter "name=$nameImage" | grep -q . && docker stop $nameImage && docker rm -fv &nameImage"
+                                sh "docker ps -q --filter 'name=$nameImage' | grep -q . && docker stop $nameImage && docker rm -fv &nameImage"
                                 sh "docker rmi -f $(docker images -a -q)"
                                 sh "docker run -d --name=$nameImage $registryAddress/$nameImage:latest"
                             }
