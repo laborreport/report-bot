@@ -60,11 +60,11 @@ pipeline {
                             remote.password = PASSWORD
                             stage("Deploy docker container") {
                                // sh "docker ps -q --filter name=$nameImage | grep -q . && docker stop $nameImage && docker rm -fv &nameImage"
-                                sshCommand remote: remote, command: "docker ps -q --filter name=\$nameImage | grep -q . && docker stop \$nameImage && docker rm -fv \$nameImage"
+                                sshCommand remote: remote, command: 'docker ps -q --filter name=\$nameImage | grep -q . && docker stop \$nameImage && docker rm -fv \$nameImage'
                                // sh "docker rmi -f ${docker images -a -q}"
-                                sshCommand remote: remote, command: "docker rmi -f $(docker images -a -q)"
+                                sshCommand remote: remote, command: 'docker rmi -f $(docker images -a -q)'
                                // sh "docker run -d --name=$nameImage $registryAddress/$nameImage:latest"
-                                sshCommand remote: remote, command: "docker run -d --name=\$nameImage \$registryAddress/\$nameImage:latest"
+                                sshCommand remote: remote, command: 'docker run -d --name=\$nameImage \$registryAddress/\$nameImage:latest'
                             }
                         }
                     }
