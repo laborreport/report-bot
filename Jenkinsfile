@@ -59,9 +59,9 @@ pipeline {
                             remote.host = deployServerIp
                             remote.password = PASSWORD
                             stage("Deploy docker container") {
-                               //sshCommand remote: remote, command: "docker stop $nameImage && docker rm -fv $nameImage"
-                               //sshCommand remote: remote, command: "docker rmi -f $registryAddress/$nameImage:latest"
-                               sshCommand remote: remote, command: "docker run -d --name=$nameImage $registryAddress/$nameImage:latest"
+                               sshCommand remote: remote, command: "docker stop $nameImage && docker rm -fv $nameImage"
+                               sshCommand remote: remote, command: "docker rmi -f $registryAddress/$nameImage:latest"
+                               sshCommand remote: remote, command: "docker run -d --network host --name=$nameImage $registryAddress/$nameImage:latest"
                             }
                         }
                     }
