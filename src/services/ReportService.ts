@@ -62,7 +62,7 @@ export class ReportService {
     static async getActByWorksheet(
         worksheet: ArrayBuffer,
         docFormat: EDocFormat = EDocFormat.PDF,
-        { contract_date, ...restUser }: Partial<IUserModel>,
+        { contract_date, pe_date, ...restUser }: Partial<IUserModel>,
         act_number: number
     ) {
         return sendReport({
@@ -74,6 +74,7 @@ export class ReportService {
                     contract_date: Moment(contract_date, DateFormat).format(
                         'YYYY-MM-DD'
                     ),
+                    pe_date: Moment(pe_date, DateFormat).format('YYYY-MM-DD'),
                 },
                 act_number,
             },

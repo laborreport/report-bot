@@ -12,8 +12,8 @@ export enum EDocFormat {
 export enum ESettingsKeys {
     contract_number = 'contract_number',
     contract_date = 'contract_date',
-    pe_series = 'pe_series',
     pe_number = 'pe_number',
+    pe_date = 'pe_date',
     rate = 'rate',
     act_number = 'act_number',
 }

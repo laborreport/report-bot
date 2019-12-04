@@ -8,8 +8,6 @@ import { ValidatorBlockedSceneFactory } from '../ValidatorBlockedSceneFactory/Va
 import { ESettingsKeys, DateFormat } from '../../common/CommonConstants';
 import { i18n, CANCEL_COMMAND } from '../../i18n';
 import { helpers, processors } from '../../helpers/helpers';
-import { Middleware } from 'telegraf';
-import { Session } from '../../Session/Session';
 
 const Joi: JoiBase.Root = JoiBase.extend(JoiDate);
 
@@ -22,11 +20,12 @@ export const SettingsSchema = JoiBase.object().keys({
         .format(DateFormat)
         .options({ convert: true })
         .required(),
-    [ESettingsKeys.pe_series]: Joi.string()
-        .length(2)
+    [ESettingsKeys.pe_date]: Joi.date()
+        .format(DateFormat)
+        .options({ convert: true })
         .required(),
     [ESettingsKeys.pe_number]: Joi.string()
-        .length(9)
+        .regex(/(\d{2}\s\d{9})|(\d{15})/)
         .required(),
     [ESettingsKeys.rate]: Joi.number()
         .min(0)
