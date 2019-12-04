@@ -8,6 +8,8 @@ import { ValidatorBlockedSceneFactory } from '../ValidatorBlockedSceneFactory/Va
 import { ESettingsKeys, DateFormat } from '../../common/CommonConstants';
 import { i18n, CANCEL_COMMAND } from '../../i18n';
 import { helpers, processors } from '../../helpers/helpers';
+import { Middleware } from 'telegraf';
+import { Session } from '../../Session/Session';
 
 const Joi: JoiBase.Root = JoiBase.extend(JoiDate);
 
@@ -34,7 +36,15 @@ export const SettingsSchema = JoiBase.object().keys({
 });
 
 const submitMiddleware = (ctx: TBotContext) => {
-    helpers.showSettings(ctx, processors.gatherCredentials(ctx, true));
+    return helpers
+        .showSettings(ctx, processors.gatherCredentials(ctx, true))
+        .then(() => {
+            ctx.state.session = {
+                ...ctx.state.session,
+                tempSettings: {},
+            };
+            return ctx.scene.leave();
+        });
 };
 
 const SettingsSceneSet: Scene[] = Object.entries(i18n.settingsEnterMessage).map(
@@ -42,33 +52,30 @@ const SettingsSceneSet: Scene[] = Object.entries(i18n.settingsEnterMessage).map(
         const scene = ValidatorBlockedSceneFactory({
             name,
             validator: Joi.reach(SettingsSchema, [name]),
-            successHook: (result: string | Date) => {
-                return ctx => {
-                    ctx.session.tempSettings = {
-                        ...ctx.session.tempSettings,
-                        [name]:
-                            result instanceof Date
-                                ? Moment(result).format(DateFormat)
-                                : result,
-                    };
-
-                    const nextScene = Object.keys(i18n.settingsEnterMessage)[
-                        index + 1
-                    ];
-                    ctx.session.tempSettings[name] &&
-                        ctx.scene.enter(nextScene);
-
-                    !nextScene && submitMiddleware(ctx);
+            successHook: (result: string | Date, ctx: TBotContext) => {
+                ctx.state.session.tempSettings = {
+                    ...ctx.state.session.tempSettings,
+                    [name]:
+                        result instanceof Date
+                            ? Moment(result).format(DateFormat)
+                            : result,
                 };
+
+                const nextScene = Object.keys(i18n.settingsEnterMessage)[
+                    index + 1
+                ];
+                if (nextScene) {
+                    return ctx.scene.enter(nextScene);
+                } else {
+                    return submitMiddleware(ctx);
+                }
             },
-            cancelHook: [
-                CANCEL_COMMAND,
-                ctx => {
-                    helpers.messages.exit(ctx);
-                    return ctx.scene.leave();
-                },
-            ],
-            enterHook: ctx => ctx.reply(message),
+            enterHook: ctx => {
+                return ctx.reply(message);
+            },
+            cancelHook: ctx => {
+                return helpers.messages.exit(ctx).then(ctx.scene.leave);
+            },
         });
 
         return scene;

@@ -3,7 +3,9 @@ import { ContextMessageUpdate } from 'telegraf';
 import { ISceneManagerHooks } from '../Scene/SceneManager';
 
 export interface ISessionContext {
-    session: IUserSession;
+    state: {
+        session: IUserSession;
+    };
 }
 
 export interface ISceneContext {

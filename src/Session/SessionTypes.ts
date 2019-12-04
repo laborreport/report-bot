@@ -5,11 +5,12 @@ export interface ISessionOptions {
 }
 
 export interface IUserSession {
+    sessionId?: string;
     scenes?: {
         activeSceneId: string;
     };
-    settings: Partial<ISettings>;
-    tempSettings: Partial<ISettings>;
+    settings?: Partial<ISettings>;
+    tempSettings?: Partial<ISettings>;
 }
 export interface IStorageShape {
     [chatId: string]: IUserSession;
