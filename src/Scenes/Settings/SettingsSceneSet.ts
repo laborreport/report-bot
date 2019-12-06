@@ -14,7 +14,7 @@ const Joi: JoiBase.Root = JoiBase.extend(JoiDate);
 export const SettingsSchema = JoiBase.object().keys({
     [ESettingsKeys.contract_number]: Joi.number()
         .min(1)
-        .max(99)
+        .max(9999)
         .required(),
     [ESettingsKeys.contract_date]: Joi.date()
         .format(DateFormat)
