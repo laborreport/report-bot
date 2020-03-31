@@ -11,7 +11,6 @@ import { ReportActions } from '../actions/ReportActions';
 import { ActNumberSceneName } from '../Scenes/ActNumber/ActNumber';
 import { FormatKeyboard } from '../keyboards/FormatKeyboard';
 import { helpers } from '../helpers/helpers';
-import * as JoiBase from '@hapi/joi';
 
 export function Main(bot: Telegraf<TBotContext>) {
     bot.start(helpers.messages.start);
@@ -64,7 +63,7 @@ export function Main(bot: Telegraf<TBotContext>) {
     bot.on('callback_query', async (ctx, next: Middleware<TBotContext>) => {
         if (ctx.callbackQuery.data === DocumentProcessingType.ACT) {
             try {
-                const settings = await SettingsSchema.validate(
+                await SettingsSchema.validate(
                     ctx.state.session.settings
                 );
                 return ctx.reply(
@@ -78,9 +77,7 @@ export function Main(bot: Telegraf<TBotContext>) {
                 );
             } catch (err) {
                 console.error(err);
-                // TODO: new helper
-
-                return helpers.messages.Error(ctx);
+                return helpers.messages.invalidSettings(ctx);
             }
         } else {
             return next(ctx);
@@ -100,16 +97,7 @@ export function Main(bot: Telegraf<TBotContext>) {
             const { error } = SettingsSchema.validate(settings);
 
             if (error)
-                return ctx.reply(
-                    `${i18n.settingsState.notEnough}`,
-                    Extra.HTML().markup(
-                        Markup.keyboard([
-                            Markup.button(i18n.mainKeyboard.changeSettings),
-                            Markup.button(i18n.mainKeyboard.showSettings),
-                            Markup.button(i18n.mainKeyboard.ChangeActNumber),
-                        ])
-                    )
-                );
+                return helpers.messages.notEnoughSettings(ctx);
 
             const { act_number, ...userModel }: Partial<ISettings> = settings;
             return ReportActions.sendActDocument(ctx, {
