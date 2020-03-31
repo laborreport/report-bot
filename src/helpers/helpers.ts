@@ -1,6 +1,6 @@
 import { TBotContext, ISettings } from '../common/CommonTypes';
 import { i18n, settingsFormatter, settingsParser } from '../i18n';
-import { Extra, Markup } from 'telegraf';
+import { Extra, Markup, Middleware } from 'telegraf';
 
 import * as JoiBase from '@hapi/joi';
 import { SettingsSchema } from '../Scenes/Settings/SettingsSceneSet';
@@ -51,9 +51,12 @@ export const helpers = {
                 `${i18n.settingsState.notEnough}`,
                 mainKeyboard
             );
+        },
+        invalidDocumentExtension: (ctx: TBotContext) => {
+            return ctx.reply(i18n.errors.invalidDocumentExtension, mainKeyboard)
         }
     },
-    async showSettings(ctx: TBotContext, credentials?: Partial<ISettings>) {
+    showSettings(ctx: TBotContext, credentials?: Partial<ISettings>) {
         const creds = credentials || processors.gatherCredentials(ctx);
         if (!Object.keys(creds).length)
             return ctx.reply(
@@ -78,28 +81,26 @@ export const helpers = {
             return helpers.messages.Error(ctx)
         }
     },
-    async applySettings(ctx: TBotContext, next: () => void) {
+    applySettings(ctx: TBotContext, next: Middleware<TBotContext>) {
         if (
-            ctx.callbackQuery.data ===
+            ctx.callbackQuery.data !==
             i18n.callbackButtons.setSettings.callbackData
-        ) {
-            const settings = settingsParser(ctx.callbackQuery.message.text);
+        ) return next(ctx);
 
-            try {
-                const { error } = JoiBase.validate(settings, SettingsSchema);
-                if (error) throw error;
+        const settings = settingsParser(ctx.callbackQuery.message.text);
 
-                ctx.state.session = {
-                    ...ctx.state.session,
-                    settings: settings,
-                };
-                return ctx.reply(i18n.settingsState.applied);
-            } catch (err) {
-                console.error(err);
-                return helpers.messages.Error(ctx);
-            }
-        } else {
-            return next();
+        try {
+            const { error } = JoiBase.validate(settings, SettingsSchema);
+            if (error) throw error;
+
+            ctx.state.session = {
+                ...ctx.state.session,
+                settings: settings,
+            };
+            return ctx.reply(i18n.settingsState.applied);
+        } catch (err) {
+            console.error(err);
+            return helpers.messages.Error(ctx);
         }
     },
 };
