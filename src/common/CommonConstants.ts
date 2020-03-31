@@ -19,3 +19,5 @@ export enum ESettingsKeys {
 }
 
 export const DateFormat = 'DD.MM.YYYY';
+
+export const AllowedDocumentExtension = '.xls';
