@@ -10,7 +10,7 @@ pipeline {
     
     options {
         buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10')) //хранить логи 10 сборок и артефактов
-        timestamps() //временные отметки 
+        timestamps() 
     }
 
     environment{
