@@ -1,5 +1,5 @@
 import Telegraf from 'telegraf';
-import { proxyAgent } from '../Agents/ProxyAgent';
+import { BotAgent } from '../Agents/ProxyAgent';
 import { Main } from '../Main/Main';
 import { Session } from '../Session/Session';
 import { SceneManager } from '../Scene/SceneManager';
@@ -9,7 +9,7 @@ import { SettingsSceneSet } from '../Scenes/Settings/SettingsSceneSet';
 
 export function Setup() {
     const bot = new Telegraf<TBotContext>(process.env.BOT_TOKEN, {
-        telegram: { agent: proxyAgent },
+        telegram: { agent: BotAgent },
     });
 
     const session = new Session({ logging: false });

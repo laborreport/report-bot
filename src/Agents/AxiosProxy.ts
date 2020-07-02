@@ -1,7 +1,7 @@
 import Axios from 'axios';
-import { proxyAgent } from './ProxyAgent';
+import { BotAgent } from './ProxyAgent';
 export const AxiosProxy = Axios.create({
-    httpAgent: proxyAgent,
-    httpsAgent: proxyAgent,
+    httpAgent: BotAgent,
+    httpsAgent: BotAgent,
 });
 export const AxiosRegular = Axios.create();
