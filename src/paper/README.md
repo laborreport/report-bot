@@ -101,9 +101,9 @@ export type TBotContext = ISessionContext &
         "scenes": {
             "activeSceneId: "entersurname"
         },
-        name: "Василий",
-        surname: "Пупкин",
-    }
+        name: "Vasily",
+        surname: "Vasilev"
+    },
     "scene": {
         enter(),
         leave(),
