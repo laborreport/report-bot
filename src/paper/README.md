@@ -194,7 +194,7 @@ export class Scene {
 }
 ```
 
-# Пример использования:
+## Пример использования:
 
 В репозитории можно найти этот пример: `paper/ExampleSetup.ts` и `npm run example`.
 
