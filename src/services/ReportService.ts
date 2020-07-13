@@ -2,7 +2,7 @@ import { AxiosRegular } from '../Agents/AxiosProxy';
 import { AxiosResponse } from 'axios';
 import FormData from 'form-data';
 import { IUserModel } from '../common/CommonTypes';
-import { EDocFormat, DateFormat } from '../common/CommonConstants';
+import { EDocFormat, DateFormat, DateServerFormat } from '../common/CommonConstants';
 import Moment from 'moment';
 
 interface ISendReportBody {
@@ -62,7 +62,7 @@ export class ReportService {
     static async getActByWorksheet(
         worksheet: ArrayBuffer,
         docFormat: EDocFormat = EDocFormat.PDF,
-        { contract_date, ...restUser }: Partial<IUserModel>,
+        { contract_date, pe_date, ...restUser }: Partial<IUserModel>,
         act_number: number
     ) {
         return sendReport({
@@ -72,8 +72,9 @@ export class ReportService {
                 user: {
                     ...restUser,
                     contract_date: Moment(contract_date, DateFormat).format(
-                        'YYYY-MM-DD'
+                        DateServerFormat
                     ),
+                    pe_date: Moment(pe_date, DateFormat).format(DateServerFormat),
                 },
                 act_number,
             },

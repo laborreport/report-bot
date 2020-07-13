@@ -2,7 +2,9 @@
     "compilerOptions": {
         "module": "es2015",
         "target": "esnext",
-        "lib": ["esnext"],
+        "lib": [
+            "esnext"
+        ],
         "noImplicitAny": true,
         "noUnusedLocals": true,
         "removeComments": true,
@@ -25,8 +27,7 @@
     },
     "files": [
         "./typings/joi-date.d.ts",
-        {
-            "exclude": "./node_modules"
-        }
-    ]
+        "./src/*"
+    ],
+    "exclude": "./node_modules"
 }

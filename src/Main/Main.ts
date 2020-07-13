@@ -6,12 +6,11 @@ import {
     SettingsSchema,
 } from '../Scenes/Settings/SettingsSceneSet';
 import { DocumentActionsKeyboard } from '../keyboards/DocumentActionsKeyboard';
-import { DocumentProcessingType, EDocFormat } from '../common/CommonConstants';
+import { DocumentProcessingType, EDocFormat, AllowedDocumentExtension } from '../common/CommonConstants';
 import { ReportActions } from '../actions/ReportActions';
 import { ActNumberSceneName } from '../Scenes/ActNumber/ActNumber';
 import { FormatKeyboard } from '../keyboards/FormatKeyboard';
 import { helpers } from '../helpers/helpers';
-import * as JoiBase from '@hapi/joi';
 
 export function Main(bot: Telegraf<TBotContext>) {
     bot.start(helpers.messages.start);
@@ -26,6 +25,9 @@ export function Main(bot: Telegraf<TBotContext>) {
     bot.hears(i18n.mainKeyboard.showSettings, ctx => helpers.showSettings(ctx));
 
     bot.on('document', async ctx => {
+        /** extension checking */
+        if (!ctx.message.document.file_name.endsWith(AllowedDocumentExtension))
+            return helpers.messages.invalidDocumentExtension(ctx);
         return ctx.reply(i18n.documentPrompt, {
             reply_markup: {
                 inline_keyboard: [
@@ -42,49 +44,49 @@ export function Main(bot: Telegraf<TBotContext>) {
     bot.on(
         'callback_query',
         async (ctx: TBotContext, next: Middleware<TBotContext>) => {
-            if (ctx.callbackQuery.data === DocumentProcessingType.WORKSHEET) {
-                try {
-                    const documentFileId =
-                        ctx.callbackQuery.message.reply_to_message.document
-                            .file_id;
-                    return ReportActions.sendProcessedDocumentReport(
-                        ctx,
-                        documentFileId
-                    );
-                } catch (err) {
-                    console.error(err);
-                    helpers.messages.Error(ctx);
-                }
-            } else {
-                return next(ctx);
+            if (ctx.callbackQuery.data !== DocumentProcessingType.WORKSHEET) return next(ctx);
+            try {
+                const documentFileId =
+                    ctx.callbackQuery.message.reply_to_message.document
+                        .file_id;
+
+                /** TODO: remove. Unused due to document first handling */
+                const filename = ctx.callbackQuery.message.reply_to_message.document.file_name;
+                if (!filename.endsWith(AllowedDocumentExtension))
+                    return helpers.messages.invalidDocumentExtension(ctx);
+
+                return ReportActions.sendProcessedDocumentReport(
+                    ctx,
+                    documentFileId
+                );
+            } catch (err) {
+                console.error(err);
+                helpers.messages.Error(ctx);
             }
+
         }
     );
 
     bot.on('callback_query', async (ctx, next: Middleware<TBotContext>) => {
-        if (ctx.callbackQuery.data === DocumentProcessingType.ACT) {
-            try {
-                const settings = await SettingsSchema.validate(
-                    ctx.state.session.settings
-                );
-                return ctx.reply(
-                    i18n.actFormat,
-                    Extra.HTML()
-                        .inReplyTo(
-                            ctx.callbackQuery.message.reply_to_message
-                                .message_id
-                        )
-                        .markup(FormatKeyboard)
-                );
-            } catch (err) {
-                console.error(err);
-                // TODO: new helper
-
-                return helpers.messages.Error(ctx);
-            }
-        } else {
-            return next(ctx);
+        if (ctx.callbackQuery.data !== DocumentProcessingType.ACT) return next(ctx);
+        try {
+            await SettingsSchema.validate(
+                ctx.state.session.settings
+            );
+            return ctx.reply(
+                i18n.actFormat,
+                Extra.HTML()
+                    .inReplyTo(
+                        ctx.callbackQuery.message.reply_to_message
+                            .message_id
+                    )
+                    .markup(FormatKeyboard)
+            );
+        } catch (err) {
+            console.error(err);
+            return helpers.messages.invalidSettings(ctx);
         }
+
     });
 
     bot.on(
@@ -95,23 +97,19 @@ export function Main(bot: Telegraf<TBotContext>) {
             if (!Object.values(EDocFormat).includes(format)) return next(ctx);
             const documentFileId =
                 ctx.callbackQuery.message.reply_to_message.document.file_id;
+            /** TODO: remove. Unused due to document first handling */
+            const filename = ctx.callbackQuery.message.reply_to_message.document.file_name;
+            if (!filename.endsWith(AllowedDocumentExtension))
+                return helpers.messages.invalidDocumentExtension(ctx);
 
             const { settings = {} } = ctx.state.session;
             const { error } = SettingsSchema.validate(settings);
 
             if (error)
-                return ctx.reply(
-                    `${i18n.settingsState.notEnough}`,
-                    Extra.HTML().markup(
-                        Markup.keyboard([
-                            Markup.button(i18n.mainKeyboard.changeSettings),
-                            Markup.button(i18n.mainKeyboard.showSettings),
-                            Markup.button(i18n.mainKeyboard.ChangeActNumber),
-                        ])
-                    )
-                );
+                return helpers.messages.notEnoughSettings(ctx);
 
             const { act_number, ...userModel }: Partial<ISettings> = settings;
+
             return ReportActions.sendActDocument(ctx, {
                 act_number: act_number,
                 user: userModel,
