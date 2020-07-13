@@ -9,10 +9,10 @@
 В Telegraf все плагины и обработчики это паттерн Middleware.
 
 ```ts
-    function(context, next){
-        ...some actions
-        next();
-    }
+function(context, next){
+    ...some actions
+    next();
+}
 ```
 
 _Класс Telegraf_ - является расширением класса Composer. Отличается настройками доступа к api.telegram.org и прокси.
@@ -97,7 +97,7 @@ export type TBotContext = ISessionContext &
 ```
 
 пример `ctx.state`: 
-```json
+```js
 {
     "session": {
         "scenes": {
@@ -107,8 +107,8 @@ export type TBotContext = ISessionContext &
         surname: "Vasilev"
     },
     "scene": {
-        enter(),
-        leave(),
+        enter(){},
+        leave(){},
     }
 }
 ```
