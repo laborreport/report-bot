@@ -5,6 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "webpack --progress --env.development --watch",
+        "example": "webpack --progress --env.development --env.EXAMPLE=true --watch",
         "build": "webpack --progress --env.production",
         "pm2": "pm2 start ./dist/bundle.js --no-daemon",
         "test": "jest --forceExit",

@@ -3,8 +3,10 @@
 const path = require('path');
 const NodemonPlugin = require('nodemon-webpack-plugin');
 const nodeExternals = require('webpack-node-externals');
+const definePlugin = require('webpack').DefinePlugin;
 
 module.exports = (env = {}) => {
+    console.log(2222, env);
     const config = {
         entry: ['babel-polyfill', './src/index.ts'],
         mode: env.development ? 'development' : 'production',
@@ -40,6 +42,9 @@ module.exports = (env = {}) => {
                           '--harmony',
                           '--no-deprecation',
                       ],
+                  }),
+                  new definePlugin({
+                    'process.env.EXAMPLE': JSON.stringify(env.EXAMPLE)
                   }),
               ]
             : undefined,
