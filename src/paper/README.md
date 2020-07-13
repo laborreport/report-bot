@@ -239,65 +239,25 @@ bot.launch();
 
 ## Пример диалога:
 
-<div style="text-align: right">
-ME
-<br>
-/start
-</div>
+я: `/start`
 
-<div style="text-align: left">
-BOT<br/>welcome
-</div>
+бот: `welcome`
 
-<div style="text-align: right">
-ME
-<br>
-show me an example
- scene
+я: `show me an example scene`
 
- </div>
+бот: `entering an example scene. /cancel to leave`
 
-<div style="text-align: left">
-BOT
-<br/>
-entering an example scene. /cancel to leave
-</div>
+я: `/example`
 
-<div style="text-align: right">
-ME
-<br>
-/example
-</div>
+бот: `inside of example scene`
 
-<div style="text-align: left">
-BOT
-<br/>
-inside of example scene
-</div>
+я: `some text`
 
-<div style="text-align: right">
-ME
-<br>
-some text
-</div>
+бот: `you're inside a scene. allowed operations /cancel /example`
 
-<div style="text-align: left">
-BOT
-<br>
-you're inside a scene. allowed operations /cancel /example
-</div>
+я: `/cancel`
 
-<div style="text-align: right">
-ME
-<br>
-/cancel
-</div>
-
-<div style="text-align: left">
-BOT
-<br/>
-leaving an example scene
-</div>
+бот: `leaving an example scene`
 
 
 Видно что `/example` можно вызвать только изнутри сцены.
