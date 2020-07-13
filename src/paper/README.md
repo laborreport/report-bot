@@ -181,6 +181,7 @@ export class Scene {
 ```
 
 # Пример использования:
+
 В репозитории можно найти этот пример: `paper/ExampleSetup.ts` и `npm run example`.
 
 ```ts
@@ -222,6 +223,69 @@ bot.hears('show me an example scene', ctx => ctx.scene.enter('exampleName'));
 bot.launch();
 ```
 
+## Пример диалога:
+
+<div style="text-align: right">
+ME
+<br>
+/start
+</div>
+
+<div style="text-align: left">
+BOT<br/>welcome
+</div>
+
+<div style="text-align: right">
+ME
+<br>
+show me an example
+ scene
+
+ </div>
+
+<div style="text-align: left">
+BOT
+<br/>
+entering an example scene. /cancel to leave
+</div>
+
+<div style="text-align: right">
+ME
+<br>
+/example
+</div>
+
+<div style="text-align: left">
+BOT
+<br/>
+inside of example scene
+</div>
+
+<div style="text-align: right">
+ME
+<br>
+some text
+</div>
+
+<div style="text-align: left">
+BOT
+<br>
+you're inside a scene. allowed operations /cancel /example
+</div>
+
+<div style="text-align: right">
+ME
+<br>
+/cancel
+</div>
+
+<div style="text-align: left">
+BOT
+<br/>
+leaving an example scene
+</div>
+
+Видно что `/example` можно вызвать только изнутри сцены.
 
 Релизация сцен и сессий является хорошим примером реализации сложных ветвлений и может быть полезна в других кейсах, подход к которым будет аналогичен.
 

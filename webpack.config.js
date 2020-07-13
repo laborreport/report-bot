@@ -6,7 +6,6 @@ const nodeExternals = require('webpack-node-externals');
 const definePlugin = require('webpack').DefinePlugin;
 
 module.exports = (env = {}) => {
-    console.log(2222, env);
     const config = {
         entry: ['babel-polyfill', './src/index.ts'],
         mode: env.development ? 'development' : 'production',
