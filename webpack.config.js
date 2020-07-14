@@ -3,6 +3,7 @@
 const path = require('path');
 const NodemonPlugin = require('nodemon-webpack-plugin');
 const nodeExternals = require('webpack-node-externals');
+const definePlugin = require('webpack').DefinePlugin;
 
 module.exports = (env = {}) => {
     const config = {
@@ -40,6 +41,9 @@ module.exports = (env = {}) => {
                           '--harmony',
                           '--no-deprecation',
                       ],
+                  }),
+                  new definePlugin({
+                    'process.env.EXAMPLE': JSON.stringify(env.EXAMPLE)
                   }),
               ]
             : undefined,
