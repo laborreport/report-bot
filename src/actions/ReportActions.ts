@@ -3,6 +3,7 @@ import { ReportService } from '../services/ReportService';
 import { i18n } from '../i18n';
 import { TBotContext, IUserModel } from '../common/CommonTypes';
 import { EDocFormat } from '../common/CommonConstants';
+import { InputFile } from 'telegraf/typings/telegram-types';
 
 export class ReportActions {
     static async sendProcessedDocumentReport(
@@ -22,10 +23,10 @@ export class ReportActions {
                 buffer: source,
                 filename,
             } = await ReportService.getReportByWorksheet(worksheetFile);
-            return ctx.telegram.sendDocument(ctx.from.id, {
+            return ctx.telegram.sendDocument(ctx.from.id, ({
                 source,
                 filename,
-            });
+            } as unknown) as InputFile);
         } catch (err) {
             return ctx.reply(
                 ` ${i18n.errors.reportService}\n ${err.toString()}`
@@ -59,10 +60,10 @@ export class ReportActions {
                 options.user,
                 options.act_number
             );
-            return ctx.telegram.sendDocument(ctx.from.id, {
+            return ctx.telegram.sendDocument(ctx.from.id, ({
                 source,
                 filename,
-            });
+            } as unknown) as InputFile);
         } catch (err) {
             return ctx.reply(
                 ` ${i18n.errors.reportService}\n ${err.toString()}`
