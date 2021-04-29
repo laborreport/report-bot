@@ -6,7 +6,11 @@ import {
     SettingsSchema,
 } from '../Scenes/Settings/SettingsSceneSet';
 import { DocumentActionsKeyboard } from '../keyboards/DocumentActionsKeyboard';
-import { DocumentProcessingType, EDocFormat, AllowedDocumentExtension } from '../common/CommonConstants';
+import {
+    DocumentProcessingType,
+    EDocFormat,
+    AllowedDocumentExtension,
+} from '../common/CommonConstants';
 import { ReportActions } from '../actions/ReportActions';
 import { ActNumberSceneName } from '../Scenes/ActNumber/ActNumber';
 import { FormatKeyboard } from '../keyboards/FormatKeyboard';
@@ -15,6 +19,9 @@ import { helpers } from '../helpers/helpers';
 export function Main(bot: Telegraf<TBotContext>) {
     bot.start(helpers.messages.start);
     bot.help(helpers.messages.start);
+    bot.on('left_chat_member', ctx => {
+        console.log(ctx, 'user left');
+    });
 
     bot.hears(i18n.mainKeyboard.changeSettings, ctx =>
         ctx.scene.enter(SettingsSceneSetName)
@@ -44,14 +51,16 @@ export function Main(bot: Telegraf<TBotContext>) {
     bot.on(
         'callback_query',
         async (ctx: TBotContext, next: Middleware<TBotContext>) => {
-            if (ctx.callbackQuery.data !== DocumentProcessingType.WORKSHEET) return next(ctx);
+            if (ctx.callbackQuery.data !== DocumentProcessingType.WORKSHEET)
+                return next(ctx);
             try {
                 const documentFileId =
-                    ctx.callbackQuery.message.reply_to_message.document
-                        .file_id;
+                    ctx.callbackQuery.message.reply_to_message.document.file_id;
 
                 /** TODO: remove. Unused due to document first handling */
-                const filename = ctx.callbackQuery.message.reply_to_message.document.file_name;
+                const filename =
+                    ctx.callbackQuery.message.reply_to_message.document
+                        .file_name;
                 if (!filename.endsWith(AllowedDocumentExtension))
                     return helpers.messages.invalidDocumentExtension(ctx);
 
@@ -63,22 +72,19 @@ export function Main(bot: Telegraf<TBotContext>) {
                 console.error(err);
                 helpers.messages.Error(ctx);
             }
-
         }
     );
 
     bot.on('callback_query', async (ctx, next: Middleware<TBotContext>) => {
-        if (ctx.callbackQuery.data !== DocumentProcessingType.ACT) return next(ctx);
+        if (ctx.callbackQuery.data !== DocumentProcessingType.ACT)
+            return next(ctx);
         try {
-            await SettingsSchema.validate(
-                ctx.state.session.settings
-            );
+            await SettingsSchema.validate(ctx.state.session.settings);
             return ctx.reply(
                 i18n.actFormat,
                 Extra.HTML()
                     .inReplyTo(
-                        ctx.callbackQuery.message.reply_to_message
-                            .message_id
+                        ctx.callbackQuery.message.reply_to_message.message_id
                     )
                     .markup(FormatKeyboard)
             );
@@ -86,7 +92,6 @@ export function Main(bot: Telegraf<TBotContext>) {
             console.error(err);
             return helpers.messages.invalidSettings(ctx);
         }
-
     });
 
     bot.on(
@@ -98,15 +103,15 @@ export function Main(bot: Telegraf<TBotContext>) {
             const documentFileId =
                 ctx.callbackQuery.message.reply_to_message.document.file_id;
             /** TODO: remove. Unused due to document first handling */
-            const filename = ctx.callbackQuery.message.reply_to_message.document.file_name;
+            const filename =
+                ctx.callbackQuery.message.reply_to_message.document.file_name;
             if (!filename.endsWith(AllowedDocumentExtension))
                 return helpers.messages.invalidDocumentExtension(ctx);
 
             const { settings = {} } = ctx.state.session;
             const { error } = SettingsSchema.validate(settings);
 
-            if (error)
-                return helpers.messages.notEnoughSettings(ctx);
+            if (error) return helpers.messages.notEnoughSettings(ctx);
 
             const { act_number, ...userModel }: Partial<ISettings> = settings;
 

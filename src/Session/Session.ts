@@ -3,6 +3,7 @@ import Memory from 'lowdb/adapters/Memory';
 import { IStorageShape, ISessionOptions } from './SessionTypes';
 import { TBotContext } from '../common/CommonTypes';
 import { Middleware } from 'telegraf';
+import { i18n } from '../i18n';
 
 export class Session {
     storage: LowdbSync<IStorageShape>;
@@ -14,9 +15,9 @@ export class Session {
 
     getKey = (ctx: TBotContext) => {
         if (ctx.from && ctx.chat) {
-            return `${ctx.from.id}:${ctx.chat.id}`;
+            return `${ctx.from.id}`;
         } else if (ctx.from && ctx.inlineQuery) {
-            return `${ctx.from.id}:${ctx.from.id}`;
+            return `${ctx.from.id}`;
         }
 
         throw `---NO-SESSION-KEY ${JSON.stringify(ctx.from)} ${JSON.stringify(
@@ -66,7 +67,11 @@ export class Session {
     middleware() {
         /** кривые тайпинги next */
         return async (ctx: TBotContext, next: () => void) => {
-            ctx.state.session = this.getOrCreateUserSession(ctx);
+            try {
+                ctx.state.session = this.getOrCreateUserSession(ctx);
+            } catch (err) {
+                return console.log(err);
+            }
             await next();
             this.commitUserSession(ctx);
         };
